@@ -1,8 +1,8 @@
-import type { Transaction } from '@/types/transaction';
+import type { CategorizedTransaction } from '@/types/transaction';
 import { formatCurrency } from '@/utils/format';
 
 interface SpendingSummaryProps {
-  transactions: Transaction[];
+  transactions: CategorizedTransaction[];
 }
 
 export function SpendingSummary({ transactions }: SpendingSummaryProps) {

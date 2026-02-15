@@ -9,11 +9,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import type { TimelineEntry } from '@/types/chart';
+import type { TimelineData } from '@/types/chart';
 import { formatCurrency } from '@/utils/format';
 
 interface SpendingTimelineProps {
-  data: TimelineEntry[];
+  data: TimelineData[];
 }
 
 export function SpendingTimeline({ data }: SpendingTimelineProps) {

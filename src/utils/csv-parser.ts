@@ -1,14 +1,13 @@
 import Papa from 'papaparse';
-import type { RawRow } from '@/types/transaction';
 
 export interface ParseResult {
   headers: string[];
-  rows: RawRow[];
+  rows: Record<string, string>[];
 }
 
 export function parseCsvFile(file: File): Promise<ParseResult> {
   return new Promise((resolve, reject) => {
-    Papa.parse<RawRow>(file, {
+    Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: true,
       complete: (result) => {

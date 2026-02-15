@@ -9,26 +9,11 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import type { PieLabelRenderProps } from 'recharts';
-import type { ChartDataPoint } from '@/types/chart';
+import type { CategoryBreakdownData } from '@/types/chart';
 import { formatCurrency, formatPercentage } from '@/utils/format';
 
-const COLORS = [
-  '#6366f1',
-  '#f59e0b',
-  '#10b981',
-  '#f43f5e',
-  '#3b82f6',
-  '#a78bfa',
-  '#34d399',
-  '#fb923c',
-  '#e879f9',
-  '#38bdf8',
-  '#4ade80',
-  '#94a3b8',
-];
-
 interface CategoryBreakdownProps {
-  data: ChartDataPoint[];
+  data: CategoryBreakdownData[];
 }
 
 export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
@@ -44,15 +29,12 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
             cy="50%"
             outerRadius={100}
             label={(props: PieLabelRenderProps) => {
-              const entry = props as PieLabelRenderProps & ChartDataPoint;
+              const entry = props as PieLabelRenderProps & CategoryBreakdownData;
               return `${entry.category} ${formatPercentage(entry.percentage)}`;
             }}
           >
-            {data.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
+            {data.map((entry) => (
+              <Cell key={entry.category} fill={entry.color} />
             ))}
           </Pie>
           <Tooltip

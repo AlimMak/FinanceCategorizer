@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import type { Transaction, MappedColumn } from '@/types/transaction';
+import type { CategorizedTransaction, ColumnMapping } from '@/types/transaction';
 import { parseCsvFile } from '@/utils/csv-parser';
 
 export interface TransactionState {
-  transactions: Transaction[];
+  transactions: CategorizedTransaction[];
   isLoading: boolean;
   error: string | null;
   headers: string[];
@@ -35,12 +35,12 @@ export function useTransactions() {
   }, []);
 
   const categorize = useCallback(
-    async (rows: Record<string, string>[], mapping: MappedColumn) => {
+    async (rows: Record<string, string>[], mapping: ColumnMapping) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
         const descriptions = rows.map(
-          (row) => row[mapping.description] ?? ''
+          (row) => row[mapping.descriptionColumn] ?? ''
         );
         const response = await fetch('/api/categorize', {
           method: 'POST',
@@ -55,16 +55,14 @@ export function useTransactions() {
         const { categories }: { categories: string[] } =
           await response.json();
 
-        const transactions: Transaction[] = rows.map((row, i) => ({
+        const transactions: CategorizedTransaction[] = rows.map((row, i) => ({
           id: `tx-${i}`,
-          date: row[mapping.date] ?? '',
-          description: row[mapping.description] ?? '',
-          amount: parseFloat(row[mapping.amount] ?? '0'),
-          category: categories[i] as Transaction['category'],
-          merchant:
-            row[mapping.merchant ?? ''] ??
-            row[mapping.description] ??
-            '',
+          date: row[mapping.dateColumn] ?? '',
+          description: row[mapping.descriptionColumn] ?? '',
+          amount: parseFloat(row[mapping.amountColumn] ?? '0'),
+          category: categories[i] as CategorizedTransaction['category'],
+          confidence: 1,
+          isOverridden: false,
         }));
 
         setState((prev) => ({ ...prev, transactions, isLoading: false }));
@@ -78,11 +76,11 @@ export function useTransactions() {
   );
 
   const overrideCategory = useCallback(
-    (id: string, category: Transaction['category']) => {
+    (id: string, category: CategorizedTransaction['category']) => {
       setState((prev) => ({
         ...prev,
         transactions: prev.transactions.map((tx) =>
-          tx.id === id ? { ...tx, category } : tx
+          tx.id === id ? { ...tx, category, isOverridden: true } : tx
         ),
       }));
     },

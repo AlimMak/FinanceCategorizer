@@ -1,13 +1,17 @@
-export interface ChartDataPoint {
-  category: string;
+import type { Category } from './transaction';
+
+export interface CategoryBreakdownData {
+  category: Category;
   total: number;
-  count: number;
   percentage: number;
+  count: number;
+  color: string;
 }
 
-export interface TimelineEntry {
+export interface TimelineData {
   period: string;
   total: number;
+  byCategory: Record<Category, number>;
 }
 
 export interface MerchantSummary {

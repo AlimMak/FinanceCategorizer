@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Transaction } from '@/types/transaction';
+import type { CategorizedTransaction } from '@/types/transaction';
 import { CategoryBadge } from './CategoryBadge';
 import { CategoryOverride } from './CategoryOverride';
 import { formatCurrency, formatDate } from '@/utils/format';
@@ -9,10 +9,10 @@ import { formatCurrency, formatDate } from '@/utils/format';
 const PAGE_SIZE = 25;
 
 interface TransactionTableProps {
-  transactions: Transaction[];
+  transactions: CategorizedTransaction[];
   onCategoryOverride: (
     id: string,
-    category: Transaction['category']
+    category: CategorizedTransaction['category']
   ) => void;
 }
 
