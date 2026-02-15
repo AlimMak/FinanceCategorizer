@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import type { ColumnMapping } from '@/types/transaction';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { ColumnMapper } from '@/components/upload/ColumnMapper';
 import { SpendingSummary } from '@/components/dashboard/SpendingSummary';
@@ -15,41 +13,36 @@ import {
   getTimelineData,
   getTopMerchants,
 } from '@/utils/data-transform';
-import { detectColumns } from '@/utils/csv-parser';
-
-type Step = 'upload' | 'map' | 'dashboard';
 
 export default function HomePage() {
-  const [step, setStep] = useState<Step>('upload');
-  const [rawRows, setRawRows] = useState<string[][]>([]);
   const {
+    step,
+    headers,
+    columnMapping,
     transactions,
     isLoading,
     error,
-    headers,
-    loadFile,
-    categorize,
-    overrideCategory,
+    handleFileUpload,
+    handleColumnConfirm,
+    handleCategoryOverride,
+    handleReset,
   } = useTransactions();
-
-  const handleFileSelect = async (file: File) => {
-    const result = await loadFile(file);
-    if (result) {
-      setRawRows(result.rows);
-      setStep('map');
-    }
-  };
-
-  const handleMappingComplete = async (mapping: ColumnMapping) => {
-    await categorize(rawRows, headers, mapping);
-    setStep('dashboard');
-  };
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-      <h1 className="text-3xl font-bold text-gray-900">
-        Personal Finance Categorizer
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Personal Finance Categorizer
+        </h1>
+        {step !== 'upload' && (
+          <button
+            onClick={handleReset}
+            className="text-sm text-gray-500 hover:text-gray-700 underline"
+          >
+            Start over
+          </button>
+        )}
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -58,32 +51,35 @@ export default function HomePage() {
       )}
 
       {step === 'upload' && (
-        <FileUpload onFileSelect={handleFileSelect} isLoading={isLoading} />
+        <FileUpload onFileSelect={handleFileUpload} isLoading={isLoading} />
       )}
 
-      {step === 'map' && (
+      {step === 'mapping' && (
         <ColumnMapper
           headers={headers}
-          initialMapping={detectColumns(headers)}
-          onMappingComplete={handleMappingComplete}
+          initialMapping={columnMapping ?? undefined}
+          onMappingComplete={handleColumnConfirm}
         />
+      )}
+
+      {step === 'categorizing' && (
+        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-600 text-lg">Categorizing with AI...</p>
+        </div>
       )}
 
       {step === 'dashboard' && transactions.length > 0 && (
         <div className="space-y-6">
           <SpendingSummary transactions={transactions} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <CategoryBreakdown
-              data={getCategoryBreakdown(transactions)}
-            />
-            <SpendingTimeline
-              data={getTimelineData(transactions)}
-            />
+            <CategoryBreakdown data={getCategoryBreakdown(transactions)} />
+            <SpendingTimeline data={getTimelineData(transactions)} />
           </div>
           <TopMerchants data={getTopMerchants(transactions)} />
           <TransactionTable
             transactions={transactions}
-            onCategoryOverride={overrideCategory}
+            onCategoryOverride={handleCategoryOverride}
           />
         </div>
       )}

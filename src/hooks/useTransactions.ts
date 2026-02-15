@@ -1,74 +1,143 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import type { CategorizedTransaction, ColumnMapping } from '@/types/transaction';
-import { parseCSV, applyMapping } from '@/utils/csv-parser';
+import { useState, useCallback, useRef } from 'react';
+import type {
+  CategorizedTransaction,
+  Category,
+  ColumnMapping,
+} from '@/types/transaction';
+import { parseCSV, applyMapping, detectColumns } from '@/utils/csv-parser';
 import { categorizeTransactions } from '@/services/categorizer';
 
-export interface TransactionState {
+type Step = 'upload' | 'mapping' | 'categorizing' | 'dashboard';
+
+interface TransactionState {
+  step: Step;
+  headers: string[];
+  columnMapping: Partial<ColumnMapping> | null;
   transactions: CategorizedTransaction[];
   isLoading: boolean;
   error: string | null;
-  headers: string[];
 }
 
-export function useTransactions() {
-  const [state, setState] = useState<TransactionState>({
-    transactions: [],
-    isLoading: false,
-    error: null,
-    headers: [],
-  });
+export interface UseTransactionsResult {
+  step: Step;
+  headers: string[];
+  columnMapping: Partial<ColumnMapping> | null;
+  transactions: CategorizedTransaction[];
+  isLoading: boolean;
+  error: string | null;
+  handleFileUpload: (file: File) => Promise<void>;
+  handleColumnConfirm: (mapping: ColumnMapping) => Promise<void>;
+  handleCategoryOverride: (id: string, category: Category) => void;
+  handleReset: () => void;
+}
 
-  const loadFile = useCallback(async (file: File) => {
+const INITIAL_STATE: TransactionState = {
+  step: 'upload',
+  headers: [],
+  columnMapping: null,
+  transactions: [],
+  isLoading: false,
+  error: null,
+};
+
+export function useTransactions(): UseTransactionsResult {
+  const [state, setState] = useState<TransactionState>(INITIAL_STATE);
+  const rawRowsRef = useRef<string[][]>([]);
+  const headersRef = useRef<string[]>([]);
+
+  const handleFileUpload = useCallback(async (file: File) => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
       const { headers, rows } = await parseCSV(file);
-      setState((prev) => ({ ...prev, headers, isLoading: false }));
-      return { headers, rows };
+      const columnMapping = detectColumns(headers);
+      rawRowsRef.current = rows;
+      headersRef.current = headers;
+
+      setState((prev) => ({
+        ...prev,
+        step: 'mapping',
+        headers,
+        columnMapping,
+        isLoading: false,
+      }));
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to parse CSV';
       setState((prev) => ({ ...prev, isLoading: false, error: message }));
-      return null;
     }
   }, []);
 
-  const categorize = useCallback(
-    async (
-      rows: string[][],
-      headers: string[],
-      mapping: ColumnMapping
-    ) => {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const handleColumnConfirm = useCallback(async (mapping: ColumnMapping) => {
+    const currentRows = rawRowsRef.current;
+    const currentHeaders = headersRef.current;
 
-      try {
-        const rawTransactions = applyMapping(rows, headers, mapping);
-        const results = await categorizeTransactions(rawTransactions);
+    if (currentRows.length === 0 || currentHeaders.length === 0) {
+      setState((prev) => ({
+        ...prev,
+        step: 'upload',
+        error: 'No data loaded. Please upload a file first.',
+      }));
+      return;
+    }
 
-        const transactions: CategorizedTransaction[] = rawTransactions.map(
-          (raw, i) => ({
-            ...raw,
-            id: `tx-${i}`,
-            category: results[i].category,
-            confidence: results[i].confidence,
-            isOverridden: false,
-          })
-        );
+    setState((prev) => ({ ...prev, step: 'categorizing', error: null }));
 
-        setState((prev) => ({ ...prev, transactions, isLoading: false }));
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Categorization failed';
-        setState((prev) => ({ ...prev, isLoading: false, error: message }));
-      }
-    },
-    []
-  );
+    const rawTransactions = applyMapping(currentRows, currentHeaders, mapping);
 
-  const overrideCategory = useCallback(
-    (id: string, category: CategorizedTransaction['category']) => {
+    if (rawTransactions.length === 0) {
+      setState((prev) => ({
+        ...prev,
+        step: 'mapping',
+        error: 'No valid transactions found. Check your column mapping.',
+      }));
+      return;
+    }
+
+    try {
+      const results = await categorizeTransactions(rawTransactions);
+
+      const transactions: CategorizedTransaction[] = rawTransactions.map(
+        (raw, i) => ({
+          ...raw,
+          id: `tx-${i}`,
+          category: results[i].category,
+          confidence: results[i].confidence,
+          isOverridden: false,
+        })
+      );
+
+      setState((prev) => ({
+        ...prev,
+        step: 'dashboard',
+        transactions,
+      }));
+    } catch (err) {
+      const warning =
+        err instanceof Error ? err.message : 'Categorization failed';
+
+      const fallbackTransactions: CategorizedTransaction[] =
+        rawTransactions.map((raw, i) => ({
+          ...raw,
+          id: `tx-${i}`,
+          category: 'Other' as Category,
+          confidence: 0,
+          isOverridden: false,
+        }));
+
+      setState((prev) => ({
+        ...prev,
+        step: 'dashboard',
+        transactions: fallbackTransactions,
+        error: `AI categorization failed: ${warning}. All transactions marked as "Other".`,
+      }));
+    }
+  }, []);
+
+  const handleCategoryOverride = useCallback(
+    (id: string, category: Category) => {
       setState((prev) => ({
         ...prev,
         transactions: prev.transactions.map((tx) =>
@@ -79,5 +148,22 @@ export function useTransactions() {
     []
   );
 
-  return { ...state, loadFile, categorize, overrideCategory };
+  const handleReset = useCallback(() => {
+    rawRowsRef.current = [];
+    headersRef.current = [];
+    setState(INITIAL_STATE);
+  }, []);
+
+  return {
+    step: state.step,
+    headers: state.headers,
+    columnMapping: state.columnMapping,
+    transactions: state.transactions,
+    isLoading: state.isLoading,
+    error: state.error,
+    handleFileUpload,
+    handleColumnConfirm,
+    handleCategoryOverride,
+    handleReset,
+  };
 }
