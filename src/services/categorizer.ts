@@ -1,37 +1,63 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { CATEGORIES, type Category } from '@/types/transaction';
+import type { RawTransaction, Category } from '@/types/transaction';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const BATCH_SIZE = 50;
+
+interface CategorizationResult {
+  category: Category;
+  confidence: number;
+}
+
+interface ApiResult {
+  index: number;
+  category: Category;
+  confidence: number;
+}
+
+const FALLBACK: CategorizationResult = { category: 'Other', confidence: 0 };
+
+async function categorizeBatch(
+  transactions: RawTransaction[]
+): Promise<CategorizationResult[]> {
+  try {
+    const response = await fetch('/api/categorize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transactions: transactions.map((tx) => ({
+          description: tx.description,
+          amount: tx.amount,
+        })),
+      }),
+    });
+
+    if (!response.ok) {
+      return transactions.map(() => ({ ...FALLBACK }));
+    }
+
+    const { results }: { results: ApiResult[] } = await response.json();
+
+    const mapped = new Map<number, CategorizationResult>();
+    for (const r of results) {
+      mapped.set(r.index, { category: r.category, confidence: r.confidence });
+    }
+
+    return transactions.map((_, i) => mapped.get(i) ?? { ...FALLBACK });
+  } catch {
+    return transactions.map(() => ({ ...FALLBACK }));
+  }
+}
 
 export async function categorizeTransactions(
-  descriptions: string[]
-): Promise<Category[]> {
-  if (descriptions.length === 0) return [];
+  transactions: RawTransaction[]
+): Promise<CategorizationResult[]> {
+  if (transactions.length === 0) return [];
 
-  const prompt = `Categorize each transaction description into exactly one of these categories: ${CATEGORIES.join(', ')}.
-
-Return ONLY a JSON array of category strings, one per description, in the same order.
-
-Descriptions:
-${descriptions.map((d, i) => `${i + 1}. ${d}`).join('\n')}`;
-
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  const text =
-    message.content[0].type === 'text' ? message.content[0].text : '[]';
-  const jsonMatch = text.match(/\[[\s\S]*\]/);
-
-  if (!jsonMatch) {
-    return descriptions.map(() => 'Other' as Category);
+  const batches: RawTransaction[][] = [];
+  for (let i = 0; i < transactions.length; i += BATCH_SIZE) {
+    batches.push(transactions.slice(i, i + BATCH_SIZE));
   }
 
-  const parsed: string[] = JSON.parse(jsonMatch[0]);
+  const batchResults = await Promise.all(batches.map(categorizeBatch));
 
-  return parsed.map((cat) =>
-    CATEGORIES.includes(cat as Category) ? (cat as Category) : 'Other'
-  );
+  return batchResults.flat();
 }

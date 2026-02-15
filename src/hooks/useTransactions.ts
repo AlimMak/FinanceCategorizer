@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import type { CategorizedTransaction, ColumnMapping } from '@/types/transaction';
 import { parseCSV, applyMapping } from '@/utils/csv-parser';
+import { categorizeTransactions } from '@/services/categorizer';
 
 export interface TransactionState {
   transactions: CategorizedTransaction[];
@@ -44,27 +45,14 @@ export function useTransactions() {
 
       try {
         const rawTransactions = applyMapping(rows, headers, mapping);
-        const descriptions = rawTransactions.map((tx) => tx.description);
-
-        const response = await fetch('/api/categorize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ descriptions }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Categorization request failed');
-        }
-
-        const { categories }: { categories: string[] } =
-          await response.json();
+        const results = await categorizeTransactions(rawTransactions);
 
         const transactions: CategorizedTransaction[] = rawTransactions.map(
           (raw, i) => ({
             ...raw,
             id: `tx-${i}`,
-            category: categories[i] as CategorizedTransaction['category'],
-            confidence: 1,
+            category: results[i].category,
+            confidence: results[i].confidence,
             isOverridden: false,
           })
         );
