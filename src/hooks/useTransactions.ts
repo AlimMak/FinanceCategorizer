@@ -27,6 +27,7 @@ export interface UseTransactionsResult {
   transactions: CategorizedTransaction[];
   isLoading: boolean;
   error: string | null;
+  previewRows: string[][];
   handleFileUpload: (file: File) => Promise<void>;
   handleColumnConfirm: (mapping: ColumnMapping) => Promise<void>;
   handleCategoryOverride: (id: string, category: Category) => void;
@@ -161,6 +162,7 @@ export function useTransactions(): UseTransactionsResult {
     transactions: state.transactions,
     isLoading: state.isLoading,
     error: state.error,
+    previewRows: rawRowsRef.current.slice(0, 5),
     handleFileUpload,
     handleColumnConfirm,
     handleCategoryOverride,

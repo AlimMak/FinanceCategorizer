@@ -22,6 +22,7 @@ export default function HomePage() {
     transactions,
     isLoading,
     error,
+    previewRows,
     handleFileUpload,
     handleColumnConfirm,
     handleCategoryOverride,
@@ -58,7 +59,9 @@ export default function HomePage() {
         <ColumnMapper
           headers={headers}
           initialMapping={columnMapping ?? undefined}
+          previewRows={previewRows}
           onMappingComplete={handleColumnConfirm}
+          onBack={handleReset}
         />
       )}
 
