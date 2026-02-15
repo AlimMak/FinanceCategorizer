@@ -1,29 +1,46 @@
-import type { Category } from '@/types/transaction';
+'use client';
 
-const BADGE_COLORS: Record<Category, string> = {
-  Groceries: 'bg-green-100 text-green-800',
-  Dining: 'bg-orange-100 text-orange-800',
-  Transport: 'bg-blue-100 text-blue-800',
-  Entertainment: 'bg-purple-100 text-purple-800',
-  Subscriptions: 'bg-indigo-100 text-indigo-800',
-  Housing: 'bg-gray-100 text-gray-800',
-  Utilities: 'bg-yellow-100 text-yellow-800',
-  Health: 'bg-red-100 text-red-800',
-  Shopping: 'bg-pink-100 text-pink-800',
-  Income: 'bg-emerald-100 text-emerald-800',
-  Transfer: 'bg-cyan-100 text-cyan-800',
-  Other: 'bg-slate-100 text-slate-800',
-};
+import type { Category } from '@/types/transaction';
+import { CATEGORY_CONFIG } from '@/types/transaction';
 
 interface CategoryBadgeProps {
   category: Category;
+  onClick?: () => void;
 }
 
-export function CategoryBadge({ category }: CategoryBadgeProps) {
+export function CategoryBadge({ category, onClick }: CategoryBadgeProps) {
+  const config = CATEGORY_CONFIG[category];
+
+  const classes = [
+    'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
+    onClick && 'cursor-pointer hover:opacity-80',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${BADGE_COLORS[category]}`}
+      className={classes}
+      style={{
+        backgroundColor: `${config.color}18`,
+        color: config.color,
+      }}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `Edit category: ${category}` : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
     >
+      <span aria-hidden="true">{config.icon}</span>
       {category}
     </span>
   );
