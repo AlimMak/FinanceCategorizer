@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { ColumnMapping } from '@/types/transaction';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { ColumnMapper } from '@/components/upload/ColumnMapper';
 import { SpendingSummary } from '@/components/dashboard/SpendingSummary';
@@ -10,16 +11,17 @@ import { TopMerchants } from '@/components/dashboard/TopMerchants';
 import { TransactionTable } from '@/components/transactions/TransactionTable';
 import { useTransactions } from '@/hooks/useTransactions';
 import {
-  buildCategoryBreakdown,
-  buildSpendingTimeline,
-  buildTopMerchants,
+  getCategoryBreakdown,
+  getTimelineData,
+  getTopMerchants,
 } from '@/utils/data-transform';
+import { detectColumns } from '@/utils/csv-parser';
 
 type Step = 'upload' | 'map' | 'dashboard';
 
 export default function HomePage() {
   const [step, setStep] = useState<Step>('upload');
-  const [rawRows, setRawRows] = useState<Record<string, string>[]>([]);
+  const [rawRows, setRawRows] = useState<string[][]>([]);
   const {
     transactions,
     isLoading,
@@ -38,10 +40,8 @@ export default function HomePage() {
     }
   };
 
-  const handleMappingComplete = async (
-    mapping: Parameters<typeof categorize>[1]
-  ) => {
-    await categorize(rawRows, mapping);
+  const handleMappingComplete = async (mapping: ColumnMapping) => {
+    await categorize(rawRows, headers, mapping);
     setStep('dashboard');
   };
 
@@ -64,6 +64,7 @@ export default function HomePage() {
       {step === 'map' && (
         <ColumnMapper
           headers={headers}
+          initialMapping={detectColumns(headers)}
           onMappingComplete={handleMappingComplete}
         />
       )}
@@ -73,13 +74,13 @@ export default function HomePage() {
           <SpendingSummary transactions={transactions} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <CategoryBreakdown
-              data={buildCategoryBreakdown(transactions)}
+              data={getCategoryBreakdown(transactions)}
             />
             <SpendingTimeline
-              data={buildSpendingTimeline(transactions)}
+              data={getTimelineData(transactions)}
             />
           </div>
-          <TopMerchants data={buildTopMerchants(transactions)} />
+          <TopMerchants data={getTopMerchants(transactions)} />
           <TransactionTable
             transactions={transactions}
             onCategoryOverride={overrideCategory}

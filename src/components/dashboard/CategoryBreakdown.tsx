@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import type { PieLabelRenderProps } from 'recharts';
 import type { CategoryBreakdownData } from '@/types/chart';
-import { formatCurrency, formatPercentage } from '@/utils/format';
+import { formatCurrency, formatPercent } from '@/utils/format';
 
 interface CategoryBreakdownProps {
   data: CategoryBreakdownData[];
@@ -30,7 +30,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
             outerRadius={100}
             label={(props: PieLabelRenderProps) => {
               const entry = props as PieLabelRenderProps & CategoryBreakdownData;
-              return `${entry.category} ${formatPercentage(entry.percentage)}`;
+              return `${entry.category} ${formatPercent(entry.percentage)}`;
             }}
           >
             {data.map((entry) => (

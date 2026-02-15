@@ -4,11 +4,13 @@ import type { ColumnMapping } from '@/types/transaction';
 
 interface ColumnMapperProps {
   headers: string[];
+  initialMapping?: Partial<ColumnMapping>;
   onMappingComplete: (mapping: ColumnMapping) => void;
 }
 
 export function ColumnMapper({
   headers,
+  initialMapping,
   onMappingComplete,
 }: ColumnMapperProps) {
   const fields: { key: keyof ColumnMapping; label: string; optional: boolean }[] = [
@@ -37,7 +39,11 @@ export function ColumnMapper({
       {fields.map(({ key, label, optional }) => (
         <div key={key} className="flex items-center gap-4">
           <label className="w-32 text-sm font-medium">{label}</label>
-          <select name={key} className="border rounded px-2 py-1 text-sm">
+          <select
+            name={key}
+            defaultValue={initialMapping?.[key] ?? (optional ? '' : undefined)}
+            className="border rounded px-2 py-1 text-sm"
+          >
             {optional && <option value="">-- optional --</option>}
             {headers.map((h) => (
               <option key={h} value={h}>

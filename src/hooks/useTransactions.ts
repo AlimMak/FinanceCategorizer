@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { CategorizedTransaction, ColumnMapping } from '@/types/transaction';
-import { parseCsvFile } from '@/utils/csv-parser';
+import { parseCSV, applyMapping } from '@/utils/csv-parser';
 
 export interface TransactionState {
   transactions: CategorizedTransaction[];
@@ -23,7 +23,7 @@ export function useTransactions() {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const { headers, rows } = await parseCsvFile(file);
+      const { headers, rows } = await parseCSV(file);
       setState((prev) => ({ ...prev, headers, isLoading: false }));
       return { headers, rows };
     } catch (err) {
@@ -35,13 +35,17 @@ export function useTransactions() {
   }, []);
 
   const categorize = useCallback(
-    async (rows: Record<string, string>[], mapping: ColumnMapping) => {
+    async (
+      rows: string[][],
+      headers: string[],
+      mapping: ColumnMapping
+    ) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
-        const descriptions = rows.map(
-          (row) => row[mapping.descriptionColumn] ?? ''
-        );
+        const rawTransactions = applyMapping(rows, headers, mapping);
+        const descriptions = rawTransactions.map((tx) => tx.description);
+
         const response = await fetch('/api/categorize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -55,15 +59,15 @@ export function useTransactions() {
         const { categories }: { categories: string[] } =
           await response.json();
 
-        const transactions: CategorizedTransaction[] = rows.map((row, i) => ({
-          id: `tx-${i}`,
-          date: row[mapping.dateColumn] ?? '',
-          description: row[mapping.descriptionColumn] ?? '',
-          amount: parseFloat(row[mapping.amountColumn] ?? '0'),
-          category: categories[i] as CategorizedTransaction['category'],
-          confidence: 1,
-          isOverridden: false,
-        }));
+        const transactions: CategorizedTransaction[] = rawTransactions.map(
+          (raw, i) => ({
+            ...raw,
+            id: `tx-${i}`,
+            category: categories[i] as CategorizedTransaction['category'],
+            confidence: 1,
+            isOverridden: false,
+          })
+        );
 
         setState((prev) => ({ ...prev, transactions, isLoading: false }));
       } catch (err) {
