@@ -48,12 +48,12 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <svg
               aria-hidden="true"
-              className="w-7 h-7 text-blue-600"
+              className="w-7 h-7 text-teal-600"
               viewBox="0 0 24 24"
               fill="none"
               strokeWidth="2"
@@ -65,7 +65,7 @@ export default function HomePage() {
                 d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
               />
             </svg>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100">
               FinSort
             </h1>
           </div>
@@ -73,7 +73,7 @@ export default function HomePage() {
           {step !== 'upload' && (
             <button
               onClick={handleReset}
-              className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors"
             >
               Start over
             </button>
@@ -108,10 +108,10 @@ export default function HomePage() {
         {step === 'upload' && (
           <div className="max-w-2xl mx-auto pt-8">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">
                 Categorize your transactions
               </h2>
-              <p className="text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-stone-500 dark:text-stone-400 mt-2">
                 Upload a CSV from your bank and let AI sort your spending.
               </p>
             </div>
@@ -136,15 +136,15 @@ export default function HomePage() {
             className="flex flex-col items-center justify-center py-20 space-y-5"
           >
             <div className="relative">
-              <div className="w-14 h-14 border-[3px] border-blue-200 dark:border-blue-900 rounded-full" />
-              <div className="absolute inset-0 w-14 h-14 border-[3px] border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-14 h-14 border-[3px] border-teal-200 dark:border-teal-900 rounded-full" />
+              <div className="absolute inset-0 w-14 h-14 border-[3px] border-teal-600 border-t-transparent rounded-full animate-spin" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-gray-900 dark:text-gray-100 text-lg font-medium">
+              <p className="text-stone-900 dark:text-stone-100 text-lg font-medium">
                 Categorizing {pendingCount} transaction
                 {pendingCount !== 1 ? 's' : ''}...
               </p>
-              <p className="text-gray-400 text-sm">
+              <p className="text-stone-400 text-sm">
                 AI is analyzing your spending patterns
               </p>
             </div>
@@ -155,7 +155,7 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <svg
               aria-hidden="true"
-              className="w-12 h-12 text-gray-300"
+              className="w-12 h-12 text-stone-300"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth="1.5"
@@ -167,15 +167,15 @@ export default function HomePage() {
                 d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
               />
             </svg>
-            <p className="text-gray-500 dark:text-gray-400 font-medium">
+            <p className="text-stone-500 dark:text-stone-400 font-medium">
               No transactions to display
             </p>
-            <p className="text-gray-400 text-sm">
+            <p className="text-stone-400 text-sm">
               The file was processed but no valid transactions were found.
             </p>
             <button
               onClick={handleReset}
-              className="mt-2 px-6 py-2.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-sm"
+              className="mt-2 px-6 py-2.5 text-sm font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 active:bg-teal-800 transition-colors"
             >
               Try another file
             </button>
@@ -197,7 +197,7 @@ export default function HomePage() {
               <button
                 onClick={() => setShowTable((v) => !v)}
                 aria-expanded={showTable}
-                className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-3 transition-colors"
+                className="flex items-center gap-2 text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 mb-3 transition-colors"
               >
                 <svg
                   aria-hidden="true"
@@ -224,7 +224,7 @@ export default function HomePage() {
             <div className="flex justify-center pt-4 pb-8">
               <button
                 onClick={handleReset}
-                className="px-6 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 transition-colors shadow-sm"
+                className="px-6 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-400 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700 active:bg-stone-100 transition-colors"
               >
                 Upload New File
               </button>

@@ -71,9 +71,9 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
   const zoneClasses = [
     'relative flex flex-col items-center justify-center w-full py-16 px-8',
     'border-2 border-dashed rounded-2xl transition-all duration-200',
-    isDragOver && 'border-blue-500 bg-blue-50/60 scale-[1.01]',
-    isLoading && 'border-gray-300 bg-gray-50 cursor-wait',
-    !isDragOver && !isLoading && 'border-gray-300 hover:border-blue-400 hover:bg-gray-50/50 cursor-pointer',
+    isDragOver && 'border-teal-500 bg-teal-50/60 dark:bg-teal-950/20 scale-[1.01]',
+    isLoading && 'border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 cursor-wait',
+    !isDragOver && !isLoading && 'border-stone-300 dark:border-stone-700 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-stone-50/50 dark:hover:bg-stone-900/50 cursor-pointer',
   ]
     .filter(Boolean)
     .join(' ');
@@ -98,19 +98,21 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
     >
       {isLoading ? (
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-[3px] border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-700 text-lg font-medium">
+          <div className="w-12 h-12 border-[3px] border-teal-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-stone-700 dark:text-stone-300 text-lg font-medium">
             Processing your file...
           </p>
           {selectedFile && (
-            <p className="text-gray-400 text-sm">{selectedFile.name}</p>
+            <p className="text-stone-400 text-sm">{selectedFile.name}</p>
           )}
         </div>
       ) : (
         <div className="flex flex-col items-center space-y-5">
           <div
             className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${
-              isDragOver ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
+              isDragOver
+                ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-600'
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500'
             }`}
           >
             <svg
@@ -130,12 +132,12 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
           </div>
 
           <div className="text-center space-y-1">
-            <p className="text-gray-700 text-lg font-medium">
+            <p className="text-stone-700 dark:text-stone-300 text-lg font-medium">
               {isDragOver
                 ? 'Drop your file here'
                 : 'Drop your bank statement CSV'}
             </p>
-            <p className="text-gray-400 text-sm">or</p>
+            <p className="text-stone-400 dark:text-stone-500 text-sm">or</p>
           </div>
 
           <button
@@ -144,15 +146,15 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
               e.stopPropagation();
               inputRef.current?.click();
             }}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-sm"
+            className="bg-teal-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-teal-700 active:bg-teal-800 transition-colors"
           >
             Browse files
           </button>
 
-          <p className="text-gray-400 text-xs">Supports .csv files</p>
+          <p className="text-stone-400 dark:text-stone-500 text-xs">Supports .csv files</p>
 
           {selectedFile && !fileError && (
-            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-4 py-2 rounded-lg">
               <svg
                 className="w-4 h-4 flex-shrink-0"
                 fill="none"
@@ -171,7 +173,7 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
           )}
 
           {fileError && (
-            <div role="alert" className="flex items-center gap-2 text-sm text-red-600">
+            <div role="alert" className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
               <svg
                 aria-hidden="true"
                 className="w-4 h-4 flex-shrink-0"

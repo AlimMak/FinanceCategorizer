@@ -13,74 +13,81 @@ interface SpendingSummaryProps {
 interface CardDef {
   label: string;
   value: string;
-  color?: string;
+  colorVar?: string;
   sub?: string;
-  icon: string;
+  primary?: boolean;
 }
 
 export function SpendingSummary({ transactions }: SpendingSummaryProps) {
   const stats = useMemo(() => getSummaryStats(transactions), [transactions]);
   const topConfig = CATEGORY_CONFIG[stats.topCategory];
 
-  const cards: CardDef[] = [
+  const primaryCards: CardDef[] = [
     {
       label: 'Total Spent',
       value: formatCurrency(stats.totalSpent),
-      color: 'text-red-600',
-      icon: '\u2193',
+      colorVar: 'var(--color-expense)',
+      primary: true,
     },
     {
       label: 'Total Income',
       value: formatCurrency(stats.totalIncome),
-      color: 'text-green-600',
-      icon: '\u2191',
+      colorVar: 'var(--color-income)',
+      primary: true,
     },
     {
       label: 'Net',
       value: formatCurrency(Math.abs(stats.net)),
-      color: stats.net >= 0 ? 'text-green-600' : 'text-red-600',
+      colorVar: stats.net >= 0 ? 'var(--color-income)' : 'var(--color-expense)',
       sub: stats.net >= 0 ? 'surplus' : 'deficit',
-      icon: stats.net >= 0 ? '+' : '-',
+      primary: true,
     },
+  ];
+
+  const secondaryCards: CardDef[] = [
     {
       label: 'Transactions',
       value: stats.transactionCount.toLocaleString(),
-      color: 'text-gray-900 dark:text-gray-100',
-      icon: '#',
     },
     {
       label: 'Date Range',
       value: stats.dateRange.start
         ? `${formatDate(stats.dateRange.start)} \u2013 ${formatDate(stats.dateRange.end)}`
         : 'N/A',
-      color: 'text-gray-900 dark:text-gray-100',
-      icon: '\u{1F4C5}',
     },
     {
       label: 'Top Category',
       value: `${topConfig.icon} ${stats.topCategory}`,
-      color: 'text-gray-900 dark:text-gray-100',
-      icon: '\u{1F3C6}',
     },
   ];
 
   return (
     <dl className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      {cards.map(({ label, value, color, sub }) => (
-        <div
-          key={label}
-          className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200"
-        >
-          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+      {primaryCards.map(({ label, value, colorVar, sub }) => (
+        <div key={label} className="card p-4">
+          <dt className="text-xs font-light uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
             {label}
           </dt>
-          <dd className={`text-xl font-bold mt-1.5 ${color ?? 'text-gray-900'}`}>
+          <dd
+            className="text-2xl font-bold mt-1.5"
+            style={{ color: colorVar }}
+          >
             {value}
             {sub && (
-              <span className="block text-xs font-normal text-gray-400 mt-0.5">
+              <span className="block text-xs font-normal mt-0.5" style={{ color: 'var(--muted-light)' }}>
                 {sub}
               </span>
             )}
+          </dd>
+        </div>
+      ))}
+      {secondaryCards.map(({ label, value }) => (
+        <div key={label} className="card p-4">
+          <dt className="text-xs font-light uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+            {label}
+          </dt>
+          <dd className="text-base font-semibold mt-1.5 text-stone-900 dark:text-stone-100">
+            {value}
           </dd>
         </div>
       ))}

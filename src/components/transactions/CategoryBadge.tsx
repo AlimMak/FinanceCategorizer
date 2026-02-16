@@ -12,8 +12,8 @@ export function CategoryBadge({ category, onClick }: CategoryBadgeProps) {
   const config = CATEGORY_CONFIG[category];
 
   const classes = [
-    'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
-    onClick && 'cursor-pointer hover:opacity-80',
+    'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-150',
+    onClick && 'cursor-pointer hover:scale-[1.02]',
   ]
     .filter(Boolean)
     .join(' ');
@@ -22,8 +22,9 @@ export function CategoryBadge({ category, onClick }: CategoryBadgeProps) {
     <span
       className={classes}
       style={{
-        backgroundColor: `${config.color}18`,
+        backgroundColor: `${config.color}20`,
         color: config.color,
+        border: `1px solid ${config.color}30`,
       }}
       onClick={onClick}
       role={onClick ? 'button' : undefined}

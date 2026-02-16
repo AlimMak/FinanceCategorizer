@@ -87,9 +87,9 @@ export function TransactionTable({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
+    <div className="card">
       <div className="p-4 pb-0 flex flex-col sm:flex-row sm:items-center gap-3">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
           All Transactions
         </h2>
         <div className="flex-1" />
@@ -102,7 +102,7 @@ export function TransactionTable({
             setSearch(e.target.value);
             setPage(0);
           }}
-          className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          className="border border-stone-300 dark:border-stone-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-stone-800 dark:text-stone-100 w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
         />
         <select
           aria-label="Filter by category"
@@ -111,7 +111,7 @@ export function TransactionTable({
             setCategoryFilter(e.target.value as Category | '');
             setPage(0);
           }}
-          className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          className="border border-stone-300 dark:border-stone-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
         >
           <option value="">All categories</option>
           {CATEGORIES.map((cat) => (
@@ -125,7 +125,7 @@ export function TransactionTable({
       <div className="overflow-x-auto p-4">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-800">
+            <tr className="border-b border-stone-200 dark:border-stone-800">
               {columns.map(({ field, label, align }) => (
                 <th
                   key={field}
@@ -146,12 +146,12 @@ export function TransactionTable({
                       handleSort(field);
                     }
                   }}
-                  className={`pb-2.5 px-2 font-medium text-gray-500 cursor-pointer select-none hover:text-gray-700 transition-colors ${align}`}
+                  className={`pb-2.5 px-2 font-medium text-stone-500 cursor-pointer select-none hover:text-stone-700 transition-colors ${align}`}
                 >
                   {label}
                   <span
                     aria-hidden="true"
-                    className={`ml-1 ${sortField === field ? 'text-blue-500' : 'text-gray-300'}`}
+                    className={`ml-1 ${sortField === field ? 'text-teal-600' : 'text-stone-300'}`}
                   >
                     {sortField !== field
                       ? '\u2195'
@@ -167,23 +167,21 @@ export function TransactionTable({
             {visible.map((tx) => (
               <tr
                 key={tx.id}
-                className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
+                className="border-b border-stone-100 dark:border-stone-800 last:border-0 hover:bg-stone-50/50 dark:hover:bg-stone-800/50 transition-colors"
               >
-                <td className="py-2.5 px-2 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                <td className="py-2.5 px-2 text-stone-600 dark:text-stone-400 whitespace-nowrap">
                   {formatDate(tx.date)}
                 </td>
-                <td className="py-2.5 px-2 text-gray-900 dark:text-gray-100 max-w-xs truncate">
+                <td className="py-2.5 px-2 text-stone-900 dark:text-stone-100 max-w-xs truncate">
                   {tx.description}
                 </td>
-                <td
-                  className={`py-2.5 px-2 text-right font-mono whitespace-nowrap ${
-                    tx.amount < 0 ? 'text-red-600' : 'text-green-600'
-                  }`}
-                >
+                <td className="py-2.5 px-2 text-right font-mono whitespace-nowrap">
                   <span className="sr-only">
                     {tx.amount < 0 ? 'Expense' : 'Income'}:
                   </span>
-                  {formatCurrency(tx.amount)}
+                  <span style={{ color: tx.amount < 0 ? 'var(--color-expense)' : 'var(--color-income)' }}>
+                    {formatCurrency(tx.amount)}
+                  </span>
                 </td>
                 <td className="py-2.5 px-2">
                   {editingId === tx.id ? (
@@ -212,7 +210,7 @@ export function TransactionTable({
                   <div className="flex flex-col items-center gap-2">
                     <svg
                       aria-hidden="true"
-                      className="w-8 h-8 text-gray-300"
+                      className="w-8 h-8 text-stone-300"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
@@ -224,10 +222,10 @@ export function TransactionTable({
                         d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
                       />
                     </svg>
-                    <p className="text-gray-500 font-medium">
+                    <p className="text-stone-500 font-medium">
                       No transactions found
                     </p>
-                    <p className="text-gray-400 text-xs">
+                    <p className="text-stone-400 text-xs">
                       {categoryFilter
                         ? `No transactions in "${categoryFilter}". Try a different category.`
                         : 'Try adjusting your search term.'}
@@ -241,7 +239,7 @@ export function TransactionTable({
       </div>
 
       <div className="flex items-center justify-between px-4 pb-4 text-sm">
-        <span className="text-gray-500">
+        <span className="text-stone-500">
           {filtered.length} transaction{filtered.length !== 1 ? 's' : ''}
         </span>
         {totalPages > 1 && (
@@ -250,18 +248,18 @@ export function TransactionTable({
               aria-label="Previous page"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
-            <span className="text-gray-500 px-2" aria-current="page">
+            <span className="text-stone-500 px-2" aria-current="page">
               {page + 1} / {totalPages}
             </span>
             <button
               aria-label="Next page"
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page === totalPages - 1}
-              className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

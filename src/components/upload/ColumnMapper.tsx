@@ -70,14 +70,14 @@ export function ColumnMapper({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+      <div className="card p-6">
+        <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100">
           Map Your Columns
         </h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-stone-500 mt-1">
           Tell us which columns contain your transaction data.
           {headers.length > 0 && (
-            <span className="text-gray-400">
+            <span className="text-stone-400">
               {' '}
               Found {headers.length} columns in your file.
             </span>
@@ -89,7 +89,7 @@ export function ColumnMapper({
             <div key={key} className="space-y-1.5">
               <label
                 htmlFor={key}
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-stone-700 dark:text-stone-300"
               >
                 {label}
                 {required && <span className="text-red-500 ml-0.5">*</span>}
@@ -98,11 +98,11 @@ export function ColumnMapper({
                 id={key}
                 value={mapping[key]}
                 onChange={(e) => handleChange(key, e.target.value)}
-                className={`w-full border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 transition-colors ${
+                className={`w-full border rounded-lg px-3 py-2 text-sm bg-white dark:bg-stone-800 transition-colors ${
                   required && !mapping[key]
-                    ? 'border-gray-300 dark:border-gray-700 text-gray-400'
-                    : 'border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100'
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    ? 'border-stone-300 dark:border-stone-700 text-stone-400'
+                    : 'border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-100'
+                } focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
               >
                 <option value="">
                   {required ? '-- Select column --' : '-- Optional --'}
@@ -119,21 +119,21 @@ export function ColumnMapper({
       </div>
 
       {previewData.length > 0 && (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        <div className="card p-6">
+          <h3 className="text-sm font-semibold text-stone-700 dark:text-stone-300 mb-3">
             Preview
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-800">
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">
+                <tr className="border-b border-stone-200 dark:border-stone-800">
+                  <th className="text-left py-2 px-3 font-medium text-stone-500">
                     Date
                   </th>
-                  <th className="text-left py-2 px-3 font-medium text-gray-500">
+                  <th className="text-left py-2 px-3 font-medium text-stone-500">
                     Description
                   </th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500">
+                  <th className="text-right py-2 px-3 font-medium text-stone-500">
                     Amount
                   </th>
                 </tr>
@@ -142,15 +142,15 @@ export function ColumnMapper({
                 {previewData.map((row, i) => (
                   <tr
                     key={i}
-                    className="border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    className="border-b border-stone-100 dark:border-stone-800 last:border-0"
                   >
-                    <td className="py-2 px-3 text-gray-600 whitespace-nowrap">
+                    <td className="py-2 px-3 text-stone-600 dark:text-stone-400 whitespace-nowrap">
                       {row.date || '--'}
                     </td>
-                    <td className="py-2 px-3 text-gray-900 dark:text-gray-100 truncate max-w-[250px]">
+                    <td className="py-2 px-3 text-stone-900 dark:text-stone-100 truncate max-w-[250px]">
                       {row.description || '--'}
                     </td>
-                    <td className="py-2 px-3 text-gray-600 text-right whitespace-nowrap font-mono">
+                    <td className="py-2 px-3 text-stone-600 dark:text-stone-400 text-right whitespace-nowrap font-mono">
                       {row.amount || '--'}
                     </td>
                   </tr>
@@ -166,7 +166,7 @@ export function ColumnMapper({
           <button
             type="button"
             onClick={onBack}
-            className="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 transition-colors"
+            className="px-5 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-400 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700 active:bg-stone-100 transition-colors"
           >
             Back
           </button>
@@ -174,10 +174,10 @@ export function ColumnMapper({
         <button
           type="submit"
           disabled={!isValid}
-          className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-colors shadow-sm ${
+          className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-colors ${
             isValid
-              ? 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+              ? 'bg-teal-600 text-white hover:bg-teal-700 active:bg-teal-800'
+              : 'bg-stone-200 dark:bg-stone-700 text-stone-400 cursor-not-allowed'
           }`}
         >
           Looks good, categorize!

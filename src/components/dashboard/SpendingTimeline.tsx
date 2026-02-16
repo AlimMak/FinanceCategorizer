@@ -45,9 +45,9 @@ function CustomTooltip({
   const nonZero = payload.filter((p) => p.value > 0);
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-3 py-2 text-sm max-w-xs">
-      <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">{label}</p>
-      <p className="text-gray-600 dark:text-gray-400 mb-2">{formatCurrency(total)} total</p>
+    <div className="card px-3 py-2 text-sm max-w-xs" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+      <p className="font-medium text-stone-900 dark:text-stone-100 mb-1">{label}</p>
+      <p className="text-stone-600 dark:text-stone-400 mb-2">{formatCurrency(total)} total</p>
       {nonZero.map((entry) => (
         <div
           key={entry.name}
@@ -60,7 +60,7 @@ function CustomTooltip({
             />
             {entry.name}
           </span>
-          <span className="text-gray-600 dark:text-gray-400">{formatCurrency(entry.value)}</span>
+          <span className="text-stone-600 dark:text-stone-400">{formatCurrency(entry.value)}</span>
         </div>
       ))}
     </div>
@@ -84,14 +84,14 @@ export function SpendingTimeline({ data }: SpendingTimelineProps) {
 
   if (data.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div className="card p-6">
+        <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
           Spending Over Time
         </h2>
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <svg
             aria-hidden="true"
-            className="w-10 h-10 text-gray-300"
+            className="w-10 h-10 text-stone-300"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
@@ -103,8 +103,8 @@ export function SpendingTimeline({ data }: SpendingTimelineProps) {
               d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
             />
           </svg>
-          <p className="text-gray-500 text-sm font-medium">No timeline data</p>
-          <p className="text-gray-400 text-xs">
+          <p className="text-stone-500 text-sm font-medium">No timeline data</p>
+          <p className="text-stone-400 text-xs">
             Timeline chart appears when transactions span multiple dates.
           </p>
         </div>
@@ -113,22 +113,22 @@ export function SpendingTimeline({ data }: SpendingTimelineProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="card p-6">
+      <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-4">
         Spending Over Time
       </h2>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.5} />
           <XAxis
             dataKey="period"
-            tick={{ fontSize: 12, fill: '#6b7280' }}
+            tick={{ fontSize: 12, fill: '#78716c' }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             tickFormatter={(v: number) => formatCurrency(v)}
-            tick={{ fontSize: 11, fill: '#9ca3af' }}
+            tick={{ fontSize: 11, fill: '#78716c' }}
             axisLine={false}
             tickLine={false}
             width={80}

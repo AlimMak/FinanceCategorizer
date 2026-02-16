@@ -35,7 +35,7 @@ export function CategoryOverride({
           onOverride(transactionId, e.target.value);
           onClose?.();
         }}
-        className="text-xs border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="text-xs border border-stone-300 dark:border-stone-700 rounded-lg px-2 py-1.5 bg-white dark:bg-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
       >
         {CATEGORIES.map((cat) => {
           const config = CATEGORY_CONFIG[cat];
@@ -49,8 +49,8 @@ export function CategoryOverride({
       <span
         className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
           isOverridden
-            ? 'bg-amber-50 text-amber-600'
-            : 'bg-blue-50 text-blue-600'
+            ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
+            : 'bg-teal-50 text-teal-600 dark:bg-teal-950/30 dark:text-teal-400'
         }`}
       >
         {isOverridden ? 'Manual' : 'AI'}

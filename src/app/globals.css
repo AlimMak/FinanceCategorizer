@@ -1,36 +1,51 @@
 @import "tailwindcss";
 
-/* --- Light theme --- */
+/* --- Light theme (warm stone palette) --- */
 :root {
-  --background: #f9fafb;
-  --foreground: #171717;
+  --background: #fafaf9;
+  --foreground: #1c1917;
   --card: #ffffff;
-  --card-border: #e5e7eb;
-  --muted: #6b7280;
+  --card-border: #e7e5e4;
+  --card-hover-border: #d6d3d1;
+  --muted: #78716c;
+  --muted-light: #a8a29e;
+  --surface: #f5f5f4;
+  --divider: #e7e5e4;
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --accent-active: #115e59;
+  --color-expense: #b85545;
+  --color-income: #3d8a6c;
 
-  /* Category colors (from CATEGORY_CONFIG) */
-  --cat-groceries: #22c55e;
-  --cat-dining: #f97316;
-  --cat-transport: #3b82f6;
-  --cat-entertainment: #a855f7;
-  --cat-subscriptions: #6366f1;
-  --cat-housing: #64748b;
-  --cat-utilities: #eab308;
-  --cat-health: #ef4444;
-  --cat-shopping: #ec4899;
-  --cat-income: #10b981;
-  --cat-transfer: #06b6d4;
-  --cat-other: #94a3b8;
+  /* Category colors (muted, harmonious) */
+  --cat-groceries: #5ba888;
+  --cat-dining: #d4956a;
+  --cat-transport: #6b8cae;
+  --cat-entertainment: #9b7cb8;
+  --cat-subscriptions: #7c82b8;
+  --cat-housing: #8a8e99;
+  --cat-utilities: #c4a85a;
+  --cat-health: #c47272;
+  --cat-shopping: #b87c9b;
+  --cat-income: #4a9e7e;
+  --cat-transfer: #6ba3b0;
+  --cat-other: #9ca0a8;
 }
 
 /* --- Dark theme --- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #030712;
-    --foreground: #f3f4f6;
-    --card: #111827;
-    --card-border: #1f2937;
-    --muted: #9ca3af;
+    --background: #0c0a09;
+    --foreground: #fafaf9;
+    --card: #1c1917;
+    --card-border: #292524;
+    --card-hover-border: #44403c;
+    --muted: #a8a29e;
+    --muted-light: #78716c;
+    --surface: #292524;
+    --divider: #292524;
+    --color-expense: #e08a7c;
+    --color-income: #6ab89a;
   }
 }
 
@@ -51,7 +66,7 @@ body {
 
 /* --- Smooth transitions between steps --- */
 main > * {
-  animation: fadeIn 0.25s ease-out;
+  animation: fadeIn 0.15s ease-out;
 }
 
 @keyframes fadeIn {
@@ -65,7 +80,19 @@ main > * {
   }
 }
 
-/* --- Custom scrollbar --- */
+/* --- Card utility --- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  transition: border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--card-hover-border);
+}
+
+/* --- Custom scrollbar (stone palette) --- */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -76,31 +103,31 @@ main > * {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #d6d3d1;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #a8a29e;
 }
 
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-thumb {
-    background: #374151;
+    background: #44403c;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #4b5563;
+    background: #57534e;
   }
 }
 
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
+  scrollbar-color: #d6d3d1 transparent;
 }
 
 @media (prefers-color-scheme: dark) {
   * {
-    scrollbar-color: #374151 transparent;
+    scrollbar-color: #44403c transparent;
   }
 }
