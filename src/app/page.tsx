@@ -151,6 +151,37 @@ export default function HomePage() {
           </div>
         )}
 
+        {step === 'dashboard' && transactions.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <svg
+              aria-hidden="true"
+              className="w-12 h-12 text-gray-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
+              />
+            </svg>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">
+              No transactions to display
+            </p>
+            <p className="text-gray-400 text-sm">
+              The file was processed but no valid transactions were found.
+            </p>
+            <button
+              onClick={handleReset}
+              className="mt-2 px-6 py-2.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-sm"
+            >
+              Try another file
+            </button>
+          </div>
+        )}
+
         {step === 'dashboard' && transactions.length > 0 && (
           <div className="space-y-6">
             <SpendingSummary transactions={transactions} />

@@ -90,24 +90,31 @@ function parseResults(
     return makeFallbackResults(count);
   }
 
-  return parsed
-    .filter(
-      (item): item is { index: number; category: string; confidence: number } =>
-        !!item &&
-        typeof item === 'object' &&
-        'index' in item &&
-        typeof (item as Record<string, unknown>).index === 'number' &&
-        Number.isInteger((item as Record<string, unknown>).index) &&
-        (item as Record<string, unknown>).index >= 0 &&
-        ((item as Record<string, unknown>).index as number) < count
-    )
-    .map((item) => ({
-      index: item.index,
-      category: CATEGORIES.includes(item.category as Category)
-        ? (item.category as Category)
-        : 'Other',
-      confidence: Math.max(0, Math.min(1, item.confidence ?? 0)),
-    }));
+  const results: CategorizeResult[] = [];
+
+  for (const raw of parsed) {
+    if (!raw || typeof raw !== 'object') continue;
+    const item = raw as Record<string, unknown>;
+    if (
+      typeof item.index !== 'number' ||
+      !Number.isInteger(item.index) ||
+      item.index < 0 ||
+      item.index >= count
+    ) continue;
+
+    const category = typeof item.category === 'string' &&
+      CATEGORIES.includes(item.category as Category)
+      ? (item.category as Category)
+      : 'Other';
+
+    const confidence = typeof item.confidence === 'number'
+      ? Math.max(0, Math.min(1, item.confidence))
+      : 0;
+
+    results.push({ index: item.index, category, confidence });
+  }
+
+  return results;
 }
 
 export async function POST(request: NextRequest) {
