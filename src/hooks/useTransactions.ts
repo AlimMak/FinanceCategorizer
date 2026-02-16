@@ -18,6 +18,7 @@ interface TransactionState {
   transactions: CategorizedTransaction[];
   isLoading: boolean;
   error: string | null;
+  pendingCount: number;
 }
 
 export interface UseTransactionsResult {
@@ -27,6 +28,7 @@ export interface UseTransactionsResult {
   transactions: CategorizedTransaction[];
   isLoading: boolean;
   error: string | null;
+  pendingCount: number;
   previewRows: string[][];
   handleFileUpload: (file: File) => Promise<void>;
   handleColumnConfirm: (mapping: ColumnMapping) => Promise<void>;
@@ -41,6 +43,7 @@ const INITIAL_STATE: TransactionState = {
   transactions: [],
   isLoading: false,
   error: null,
+  pendingCount: 0,
 };
 
 export function useTransactions(): UseTransactionsResult {
@@ -84,8 +87,6 @@ export function useTransactions(): UseTransactionsResult {
       return;
     }
 
-    setState((prev) => ({ ...prev, step: 'categorizing', error: null }));
-
     const rawTransactions = applyMapping(currentRows, currentHeaders, mapping);
 
     if (rawTransactions.length === 0) {
@@ -96,6 +97,13 @@ export function useTransactions(): UseTransactionsResult {
       }));
       return;
     }
+
+    setState((prev) => ({
+      ...prev,
+      step: 'categorizing',
+      error: null,
+      pendingCount: rawTransactions.length,
+    }));
 
     try {
       const results = await categorizeTransactions(rawTransactions);
@@ -162,6 +170,7 @@ export function useTransactions(): UseTransactionsResult {
     transactions: state.transactions,
     isLoading: state.isLoading,
     error: state.error,
+    pendingCount: state.pendingCount,
     previewRows: rawRowsRef.current.slice(0, 5),
     handleFileUpload,
     handleColumnConfirm,

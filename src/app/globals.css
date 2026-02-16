@@ -1,18 +1,106 @@
 @import "tailwindcss";
 
+/* --- Light theme --- */
 :root {
   --background: #f9fafb;
   --foreground: #171717;
+  --card: #ffffff;
+  --card-border: #e5e7eb;
+  --muted: #6b7280;
+
+  /* Category colors (from CATEGORY_CONFIG) */
+  --cat-groceries: #22c55e;
+  --cat-dining: #f97316;
+  --cat-transport: #3b82f6;
+  --cat-entertainment: #a855f7;
+  --cat-subscriptions: #6366f1;
+  --cat-housing: #64748b;
+  --cat-utilities: #eab308;
+  --cat-health: #ef4444;
+  --cat-shopping: #ec4899;
+  --cat-income: #10b981;
+  --cat-transfer: #06b6d4;
+  --cat-other: #94a3b8;
 }
 
+/* --- Dark theme --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #030712;
+    --foreground: #f3f4f6;
+    --card: #111827;
+    --card-border: #1f2937;
+    --muted: #9ca3af;
+  }
+}
+
+/* --- Tailwind theme wiring --- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
+/* --- Base styles --- */
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* --- Smooth transitions between steps --- */
+main > * {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Custom scrollbar --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: #374151;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+  }
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  * {
+    scrollbar-color: #374151 transparent;
+  }
 }
