@@ -4,6 +4,8 @@ import { CATEGORIES, type Category } from '@/types/transaction';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+const MAX_TRANSACTIONS_PER_REQUEST = 200;
+
 interface TransactionInput {
   description: string;
   amount: number;
@@ -60,29 +62,52 @@ function validateTransactions(body: unknown): TransactionInput[] | null {
   return transactions as TransactionInput[];
 }
 
+function makeFallbackResults(count: number): CategorizeResult[] {
+  return Array.from({ length: count }, (_, i) => ({
+    index: i,
+    category: 'Other' as Category,
+    confidence: 0,
+  }));
+}
+
 function parseResults(
   text: string,
   count: number
 ): CategorizeResult[] {
   const jsonMatch = text.match(/\[[\s\S]*\]/);
   if (!jsonMatch) {
-    return Array.from({ length: count }, (_, i) => ({
-      index: i,
-      category: 'Other' as Category,
-      confidence: 0,
-    }));
+    return makeFallbackResults(count);
   }
 
-  const parsed: { index: number; category: string; confidence: number }[] =
-    JSON.parse(jsonMatch[0]);
+  let parsed: unknown[];
+  try {
+    parsed = JSON.parse(jsonMatch[0]);
+  } catch {
+    return makeFallbackResults(count);
+  }
 
-  return parsed.map((item) => ({
-    index: item.index,
-    category: CATEGORIES.includes(item.category as Category)
-      ? (item.category as Category)
-      : 'Other',
-    confidence: Math.max(0, Math.min(1, item.confidence ?? 0)),
-  }));
+  if (!Array.isArray(parsed)) {
+    return makeFallbackResults(count);
+  }
+
+  return parsed
+    .filter(
+      (item): item is { index: number; category: string; confidence: number } =>
+        !!item &&
+        typeof item === 'object' &&
+        'index' in item &&
+        typeof (item as Record<string, unknown>).index === 'number' &&
+        Number.isInteger((item as Record<string, unknown>).index) &&
+        (item as Record<string, unknown>).index >= 0 &&
+        ((item as Record<string, unknown>).index as number) < count
+    )
+    .map((item) => ({
+      index: item.index,
+      category: CATEGORIES.includes(item.category as Category)
+        ? (item.category as Category)
+        : 'Other',
+      confidence: Math.max(0, Math.min(1, item.confidence ?? 0)),
+    }));
 }
 
 export async function POST(request: NextRequest) {
@@ -99,6 +124,13 @@ export async function POST(request: NextRequest) {
 
     if (transactions.length === 0) {
       return NextResponse.json({ results: [] });
+    }
+
+    if (transactions.length > MAX_TRANSACTIONS_PER_REQUEST) {
+      return NextResponse.json(
+        { error: `Too many transactions. Maximum ${MAX_TRANSACTIONS_PER_REQUEST} per request.` },
+        { status: 400 }
+      );
     }
 
     const userMessage = JSON.stringify(
@@ -122,8 +154,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ results });
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Internal server error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[categorize] Error:', err);
+    return NextResponse.json(
+      { error: 'Categorization failed. Please try again.' },
+      { status: 500 }
+    );
   }
 }

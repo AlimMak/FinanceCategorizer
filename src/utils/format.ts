@@ -7,7 +7,9 @@ export function formatCurrency(amount: number): string {
 }
 
 export function formatDate(dateStr: string): string {
+  if (!dateStr) return 'N/A';
   const date = new Date(dateStr + 'T00:00:00');
+  if (isNaN(date.getTime())) return dateStr;
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',

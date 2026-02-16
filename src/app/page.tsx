@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { ColumnMapper } from '@/components/upload/ColumnMapper';
 import { SpendingSummary } from '@/components/dashboard/SpendingSummary';
@@ -32,6 +32,19 @@ export default function HomePage() {
   } = useTransactions();
 
   const [showTable, setShowTable] = useState(true);
+
+  const categoryBreakdown = useMemo(
+    () => getCategoryBreakdown(transactions),
+    [transactions]
+  );
+  const timelineData = useMemo(
+    () => getTimelineData(transactions),
+    [transactions]
+  );
+  const topMerchants = useMemo(
+    () => getTopMerchants(transactions),
+    [transactions]
+  );
 
   return (
     <div className="min-h-screen">
@@ -70,8 +83,25 @@ export default function HomePage() {
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         {error && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm">
-            {error}
+          <div
+            role="alert"
+            className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm flex items-start gap-3"
+          >
+            <svg
+              aria-hidden="true"
+              className="w-5 h-5 flex-shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+              />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
@@ -100,7 +130,11 @@ export default function HomePage() {
         )}
 
         {step === 'categorizing' && (
-          <div className="flex flex-col items-center justify-center py-20 space-y-5">
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex flex-col items-center justify-center py-20 space-y-5"
+          >
             <div className="relative">
               <div className="w-14 h-14 border-[3px] border-blue-200 dark:border-blue-900 rounded-full" />
               <div className="absolute inset-0 w-14 h-14 border-[3px] border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -122,20 +156,21 @@ export default function HomePage() {
             <SpendingSummary transactions={transactions} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CategoryBreakdown data={getCategoryBreakdown(transactions)} />
-              <SpendingTimeline data={getTimelineData(transactions)} />
+              <CategoryBreakdown data={categoryBreakdown} />
+              <SpendingTimeline data={timelineData} />
             </div>
 
-            <TopMerchants data={getTopMerchants(transactions)} />
+            <TopMerchants data={topMerchants} />
 
             <div>
               <button
                 onClick={() => setShowTable((v) => !v)}
+                aria-expanded={showTable}
                 className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-3 transition-colors"
               >
                 <svg
                   aria-hidden="true"
-                  className={`w-4 h-4 transition-transform ${showTable ? 'rotate-90' : ''}`}
+                  className={`w-4 h-4 transition-transform duration-200 ${showTable ? 'rotate-90' : ''}`}
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -158,7 +193,7 @@ export default function HomePage() {
             <div className="flex justify-center pt-4 pb-8">
               <button
                 onClick={handleReset}
-                className="px-6 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors shadow-sm"
+                className="px-6 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 transition-colors shadow-sm"
               >
                 Upload New File
               </button>

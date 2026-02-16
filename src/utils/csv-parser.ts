@@ -13,11 +13,19 @@ export function parseCSV(file: File): Promise<ParseResult> {
       skipEmptyLines: true,
       complete: (result) => {
         if (result.data.length === 0) {
-          reject(new Error('CSV file is empty'));
+          reject(new Error('the file appears to be empty'));
           return;
         }
         const [headerRow, ...rows] = result.data;
+        if (headerRow.length === 0 || headerRow.every((h) => !h.trim())) {
+          reject(new Error('no column headers found in the first row'));
+          return;
+        }
         const headers = headerRow.map((h) => h.replace(/^\uFEFF/, '').trim());
+        if (rows.length === 0) {
+          reject(new Error('the file has headers but no data rows'));
+          return;
+        }
         resolve({ headers, rows });
       },
       error: (error) => reject(new Error(error.message)),

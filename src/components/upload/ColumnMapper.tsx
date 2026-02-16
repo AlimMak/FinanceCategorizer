@@ -70,8 +70,8 @@ export function ColumnMapper({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Map Your Columns
         </h2>
         <p className="text-sm text-gray-500 mt-1">
@@ -89,7 +89,7 @@ export function ColumnMapper({
             <div key={key} className="space-y-1.5">
               <label
                 htmlFor={key}
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 {label}
                 {required && <span className="text-red-500 ml-0.5">*</span>}
@@ -98,10 +98,10 @@ export function ColumnMapper({
                 id={key}
                 value={mapping[key]}
                 onChange={(e) => handleChange(key, e.target.value)}
-                className={`w-full border rounded-lg px-3 py-2 text-sm bg-white transition-colors ${
+                className={`w-full border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 transition-colors ${
                   required && !mapping[key]
-                    ? 'border-gray-300 text-gray-400'
-                    : 'border-gray-300 text-gray-900'
+                    ? 'border-gray-300 dark:border-gray-700 text-gray-400'
+                    : 'border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100'
                 } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
               >
                 <option value="">
@@ -119,14 +119,14 @@ export function ColumnMapper({
       </div>
 
       {previewData.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Preview
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
+                <tr className="border-b border-gray-200 dark:border-gray-800">
                   <th className="text-left py-2 px-3 font-medium text-gray-500">
                     Date
                   </th>
@@ -142,12 +142,12 @@ export function ColumnMapper({
                 {previewData.map((row, i) => (
                   <tr
                     key={i}
-                    className="border-b border-gray-100 last:border-0"
+                    className="border-b border-gray-100 dark:border-gray-800 last:border-0"
                   >
                     <td className="py-2 px-3 text-gray-600 whitespace-nowrap">
                       {row.date || '--'}
                     </td>
-                    <td className="py-2 px-3 text-gray-900 truncate max-w-[250px]">
+                    <td className="py-2 px-3 text-gray-900 dark:text-gray-100 truncate max-w-[250px]">
                       {row.description || '--'}
                     </td>
                     <td className="py-2 px-3 text-gray-600 text-right whitespace-nowrap font-mono">
@@ -166,7 +166,7 @@ export function ColumnMapper({
           <button
             type="button"
             onClick={onBack}
-            className="px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 transition-colors"
           >
             Back
           </button>
@@ -177,7 +177,7 @@ export function ColumnMapper({
           className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-colors shadow-sm ${
             isValid
               ? 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
           }`}
         >
           Looks good, categorize!

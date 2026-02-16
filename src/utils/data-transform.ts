@@ -61,12 +61,15 @@ const EMPTY_BY_CATEGORY: Record<Category, number> = {
 export function getTimelineData(
   transactions: CategorizedTransaction[]
 ): TimelineData[] {
+  const expenses = transactions.filter(
+    (tx) => !EXCLUDED_CATEGORIES.has(tx.category)
+  );
   const byPeriod = new Map<
     string,
     { total: number; byCategory: Record<Category, number> }
   >();
 
-  for (const tx of transactions) {
+  for (const tx of expenses) {
     const period = tx.date.slice(0, 7);
     const existing = byPeriod.get(period) ?? {
       total: 0,

@@ -54,13 +54,6 @@ export interface ColumnMapping {
   categoryColumn?: string;
 }
 
-export interface UploadState {
-  step: 'upload' | 'mapping' | 'categorizing' | 'dashboard';
-  rawData: RawTransaction[];
-  categorizedData: CategorizedTransaction[];
-  error?: string;
-}
-
 export const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
   Groceries: { name: 'Groceries', color: '#22c55e', icon: '\u{1F6D2}' },
   Dining: { name: 'Dining', color: '#f97316', icon: '\u{1F37D}\u{FE0F}' },

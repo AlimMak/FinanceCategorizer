@@ -19,6 +19,7 @@ interface TransactionState {
   isLoading: boolean;
   error: string | null;
   pendingCount: number;
+  previewRows: string[][];
 }
 
 export interface UseTransactionsResult {
@@ -44,6 +45,7 @@ const INITIAL_STATE: TransactionState = {
   isLoading: false,
   error: null,
   pendingCount: 0,
+  previewRows: [],
 };
 
 export function useTransactions(): UseTransactionsResult {
@@ -66,10 +68,11 @@ export function useTransactions(): UseTransactionsResult {
         headers,
         columnMapping,
         isLoading: false,
+        previewRows: rows.slice(0, 5),
       }));
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to parse CSV';
+      const raw = err instanceof Error ? err.message : 'Unknown error';
+      const message = `CSV parsing failed \u2014 ${raw}. Check that your file has column headers in the first row.`;
       setState((prev) => ({ ...prev, isLoading: false, error: message }));
     }
   }, []);
@@ -93,7 +96,7 @@ export function useTransactions(): UseTransactionsResult {
       setState((prev) => ({
         ...prev,
         step: 'mapping',
-        error: 'No valid transactions found. Check your column mapping.',
+        error: 'No valid transactions found. Check your column mapping \u2014 ensure the date, description, and amount columns are correct.',
       }));
       return;
     }
@@ -171,7 +174,7 @@ export function useTransactions(): UseTransactionsResult {
     isLoading: state.isLoading,
     error: state.error,
     pendingCount: state.pendingCount,
-    previewRows: rawRowsRef.current.slice(0, 5),
+    previewRows: state.previewRows,
     handleFileUpload,
     handleColumnConfirm,
     handleCategoryOverride,

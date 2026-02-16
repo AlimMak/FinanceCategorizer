@@ -71,7 +71,7 @@ export function TransactionTable({
     return sorted;
   }, [transactions, search, categoryFilter, sortField, sortDir]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const visible = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const columns: { field: SortField; label: string; align: string }[] = [
@@ -81,10 +81,15 @@ export function TransactionTable({
     { field: 'category', label: 'Category', align: 'text-left' },
   ];
 
+  const getSortLabel = (field: SortField): string => {
+    if (sortField !== field) return `Sort by ${field}`;
+    return `Sort by ${field}, currently ${sortDir === 'asc' ? 'ascending' : 'descending'}`;
+  };
+
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
       <div className="p-4 pb-0 flex flex-col sm:flex-row sm:items-center gap-3">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           All Transactions
         </h2>
         <div className="flex-1" />
@@ -97,7 +102,7 @@ export function TransactionTable({
             setSearch(e.target.value);
             setPage(0);
           }}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
         />
         <select
           aria-label="Filter by category"
@@ -106,7 +111,7 @@ export function TransactionTable({
             setCategoryFilter(e.target.value as Category | '');
             setPage(0);
           }}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
         >
           <option value="">All categories</option>
           {CATEGORIES.map((cat) => (
@@ -120,16 +125,39 @@ export function TransactionTable({
       <div className="overflow-x-auto p-4">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-gray-200 dark:border-gray-800">
               {columns.map(({ field, label, align }) => (
                 <th
                   key={field}
+                  role="columnheader"
+                  tabIndex={0}
+                  aria-sort={
+                    sortField === field
+                      ? sortDir === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : 'none'
+                  }
+                  aria-label={getSortLabel(field)}
                   onClick={() => handleSort(field)}
-                  className={`pb-2.5 px-2 font-medium text-gray-500 cursor-pointer select-none hover:text-gray-700 ${align}`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSort(field);
+                    }
+                  }}
+                  className={`pb-2.5 px-2 font-medium text-gray-500 cursor-pointer select-none hover:text-gray-700 transition-colors ${align}`}
                 >
                   {label}
-                  <span className={`ml-1 ${sortField === field ? 'text-blue-500' : 'text-gray-300'}`}>
-                    {sortField !== field ? '\u2195' : sortDir === 'asc' ? '\u25B2' : '\u25BC'}
+                  <span
+                    aria-hidden="true"
+                    className={`ml-1 ${sortField === field ? 'text-blue-500' : 'text-gray-300'}`}
+                  >
+                    {sortField !== field
+                      ? '\u2195'
+                      : sortDir === 'asc'
+                        ? '\u25B2'
+                        : '\u25BC'}
                   </span>
                 </th>
               ))}
@@ -139,12 +167,12 @@ export function TransactionTable({
             {visible.map((tx) => (
               <tr
                 key={tx.id}
-                className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50"
+                className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
               >
-                <td className="py-2.5 px-2 text-gray-600 whitespace-nowrap">
+                <td className="py-2.5 px-2 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                   {formatDate(tx.date)}
                 </td>
-                <td className="py-2.5 px-2 text-gray-900 max-w-xs truncate">
+                <td className="py-2.5 px-2 text-gray-900 dark:text-gray-100 max-w-xs truncate">
                   {tx.description}
                 </td>
                 <td
@@ -152,6 +180,9 @@ export function TransactionTable({
                     tx.amount < 0 ? 'text-red-600' : 'text-green-600'
                   }`}
                 >
+                  <span className="sr-only">
+                    {tx.amount < 0 ? 'Expense' : 'Income'}:
+                  </span>
                   {formatCurrency(tx.amount)}
                 </td>
                 <td className="py-2.5 px-2">
@@ -176,9 +207,32 @@ export function TransactionTable({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="py-8 text-center text-gray-400 text-sm"
+                  className="py-12 text-center text-sm"
                 >
-                  No transactions match your filters.
+                  <div className="flex flex-col items-center gap-2">
+                    <svg
+                      aria-hidden="true"
+                      className="w-8 h-8 text-gray-300"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                      />
+                    </svg>
+                    <p className="text-gray-500 font-medium">
+                      No transactions found
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      {categoryFilter
+                        ? `No transactions in "${categoryFilter}". Try a different category.`
+                        : 'Try adjusting your search term.'}
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}
@@ -186,32 +240,34 @@ export function TransactionTable({
         </table>
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 pb-4 text-sm">
-          <span className="text-gray-500">
-            {filtered.length} transaction{filtered.length !== 1 ? 's' : ''}
-          </span>
-          <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-4 pb-4 text-sm">
+        <span className="text-gray-500">
+          {filtered.length} transaction{filtered.length !== 1 ? 's' : ''}
+        </span>
+        {totalPages > 1 && (
+          <nav aria-label="Transaction table pagination" className="flex items-center gap-2">
             <button
+              aria-label="Previous page"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
-            <span className="text-gray-500 px-2">
+            <span className="text-gray-500 px-2" aria-current="page">
               {page + 1} / {totalPages}
             </span>
             <button
+              aria-label="Next page"
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page === totalPages - 1}
-              className="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>
-          </div>
-        </div>
-      )}
+          </nav>
+        )}
+      </div>
     </div>
   );
 }
