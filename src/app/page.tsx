@@ -17,6 +17,8 @@ import {
   getSummaryStats,
 } from '@/utils/data-transform';
 import { detectSubscriptions } from '@/utils/subscription-detector';
+import { detectAnomalies } from '@/utils/anomaly-detector';
+import { AnomalyAlerts } from '@/components/dashboard/AnomalyAlerts';
 
 export default function HomePage() {
   const {
@@ -52,6 +54,10 @@ export default function HomePage() {
   );
   const subscriptions = useMemo(
     () => detectSubscriptions(transactions),
+    [transactions]
+  );
+  const anomalies = useMemo(
+    () => detectAnomalies(transactions),
     [transactions]
   );
 
@@ -299,6 +305,8 @@ export default function HomePage() {
         {step === 'dashboard' && transactions.length > 0 && (
           <div className="space-y-6">
             <SpendingSummary transactions={transactions} />
+
+            <AnomalyAlerts anomalies={anomalies} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CategoryBreakdown data={categoryBreakdown} />

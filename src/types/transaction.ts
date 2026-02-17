@@ -69,6 +69,26 @@ export interface Subscription {
   transactionIds: string[];
 }
 
+export type AnomalyType =
+  | 'unusually_large'
+  | 'new_merchant'
+  | 'category_spike'
+  | 'duplicate'
+  | 'unusual_timing';
+
+export type AnomalySeverity = 'low' | 'medium' | 'high';
+
+export interface Anomaly {
+  id: string;
+  transactionId: string;
+  type: AnomalyType;
+  severity: AnomalySeverity;
+  description: string;
+  amount: number;
+  merchant: string;
+  date: string;
+}
+
 export const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
   Groceries: { name: 'Groceries', color: '#5ba888', icon: '\u{1F6D2}' },
   Dining: { name: 'Dining', color: '#d4956a', icon: '\u{1F37D}\u{FE0F}' },
