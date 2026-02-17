@@ -1,9 +1,29 @@
 # FinSort
 
-AI-powered personal finance categorizer. Upload a CSV bank statement and FinSort uses Claude to automatically sort every transaction into categories like Groceries, Dining, Transport, and more — then visualizes your spending with interactive charts and a searchable transaction table.
+FinSort is an AI-powered personal finance analyzer that turns raw bank statements into categorized spending insights. Upload a CSV or PDF bank statement and FinSort uses Claude to automatically sort every transaction into categories like Groceries, Dining, Transport, and more — then visualizes your spending with interactive charts, detects recurring subscriptions, flags anomalous transactions, and lets you export a polished PDF report.
 
-![FinSort Screenshot](./screenshot.png)
-<!-- Replace screenshot.png with an actual screenshot of the dashboard -->
+![FinSort Dashboard](./screenshot.png)
+<!-- Replace screenshot.png with an actual screenshot of your dashboard -->
+
+## Features
+
+- **CSV & PDF Upload** — Drag-and-drop bank statements with automatic column detection
+- **AI Categorization** — Claude Haiku classifies transactions into 12 spending categories
+- **Spending Dashboard** — Summary cards, category donut chart, spending timeline, and top merchants
+- **Recurring Subscription Detection** — Automatically identifies weekly, monthly, and yearly charges
+- **Anomaly Alerts** — Flags unusually large charges, category spikes, possible duplicates, and new merchants
+- **PDF Export** — Generate a clean A4 report with summary stats, category breakdown, and top merchants
+- **Dark / Light Mode** — System preference detection with manual toggle and no flash on load
+
+## Tech Stack
+
+- **Framework**: Next.js 16 + TypeScript (App Router)
+- **Styling**: TailwindCSS v4
+- **AI**: Anthropic Claude API (`claude-haiku-4-5-20251001`)
+- **Charts**: Recharts
+- **CSV Parsing**: PapaParse
+- **PDF Parsing**: pdfjs-dist
+- **PDF Export**: jsPDF
 
 ## Setup
 
@@ -29,29 +49,9 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Supported CSV Formats
-
-FinSort works with any CSV that has columns for **date**, **description**, and **amount**. After uploading, you map your columns to the right fields — no rigid format required.
-
-Common bank exports that work out of the box:
-- Chase, Bank of America, Wells Fargo, Citi statement CSVs
-- Mint / Empower export files
-- Any CSV with at least date, description, and amount columns
-
-Extra columns (balance, check number, etc.) are ignored automatically.
-
 ## Categories
 
 Groceries | Dining | Transport | Entertainment | Subscriptions | Housing | Utilities | Health | Shopping | Income | Transfer | Other
-
-## Tech Stack
-
-- **Framework**: Next.js 16 + TypeScript (App Router)
-- **Styling**: TailwindCSS v4
-- **AI**: Anthropic Claude API (claude-haiku-4-5-20251001)
-- **Charts**: Recharts
-- **CSV Parsing**: PapaParse
-- **Deployment**: Vercel
 
 ## Deploy to Vercel
 

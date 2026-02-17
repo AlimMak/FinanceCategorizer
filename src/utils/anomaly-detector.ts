@@ -3,7 +3,6 @@ import type {
   Category,
   Anomaly,
   AnomalySeverity,
-  AnomalyType,
 } from '@/types/transaction';
 import { formatCurrency } from '@/utils/format';
 

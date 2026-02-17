@@ -47,7 +47,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <svg
             aria-hidden="true"
-            className="w-10 h-10 text-stone-300"
+            className="w-10 h-10 text-stone-300 dark:text-stone-600"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
@@ -64,8 +64,8 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
               d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z"
             />
           </svg>
-          <p className="text-stone-500 text-sm font-medium">No expense data</p>
-          <p className="text-stone-400 text-xs">
+          <p className="text-stone-500 dark:text-stone-400 text-sm font-medium">No expense data</p>
+          <p className="text-stone-400 dark:text-stone-500 text-xs">
             All transactions are income or transfers.
           </p>
         </div>

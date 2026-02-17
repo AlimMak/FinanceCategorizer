@@ -275,7 +275,7 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <svg
               aria-hidden="true"
-              className="w-12 h-12 text-stone-300"
+              className="w-12 h-12 text-stone-300 dark:text-stone-600"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth="1.5"
@@ -290,7 +290,7 @@ export default function HomePage() {
             <p className="text-stone-500 dark:text-stone-400 font-medium">
               No transactions to display
             </p>
-            <p className="text-stone-400 text-sm">
+            <p className="text-stone-400 dark:text-stone-500 text-sm">
               The file was processed but no valid transactions were found.
             </p>
             <button

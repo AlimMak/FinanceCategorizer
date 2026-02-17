@@ -69,7 +69,7 @@ export function SpendingSummary({ transactions }: SpendingSummaryProps) {
             {label}
           </dt>
           <dd
-            className="text-2xl font-bold mt-1.5"
+            className="text-xl sm:text-2xl font-bold mt-1.5"
             style={{ color: colorVar }}
           >
             {value}

@@ -210,7 +210,7 @@ export function TransactionTable({
                   <div className="flex flex-col items-center gap-2">
                     <svg
                       aria-hidden="true"
-                      className="w-8 h-8 text-stone-300"
+                      className="w-8 h-8 text-stone-300 dark:text-stone-600"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
@@ -222,10 +222,10 @@ export function TransactionTable({
                         d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
                       />
                     </svg>
-                    <p className="text-stone-500 font-medium">
+                    <p className="text-stone-500 dark:text-stone-400 font-medium">
                       No transactions found
                     </p>
-                    <p className="text-stone-400 text-xs">
+                    <p className="text-stone-400 dark:text-stone-500 text-xs">
                       {categoryFilter
                         ? `No transactions in "${categoryFilter}". Try a different category.`
                         : 'Try adjusting your search term.'}
