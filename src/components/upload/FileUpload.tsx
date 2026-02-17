@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback } from 'react';
 
+type DetectedType = 'csv' | 'pdf' | null;
+
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
   isLoading: boolean;
@@ -15,19 +17,28 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function detectFileType(name: string): DetectedType {
+  const lower = name.toLowerCase();
+  if (lower.endsWith('.csv')) return 'csv';
+  if (lower.endsWith('.pdf')) return 'pdf';
+  return null;
+}
+
 export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<{
     name: string;
     size: number;
+    type: DetectedType;
   } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(
     (file: File) => {
-      if (!file.name.toLowerCase().endsWith('.csv')) {
-        setFileError('Please select a .csv file');
+      const type = detectFileType(file.name);
+      if (!type) {
+        setFileError('Please select a .csv or .pdf file');
         return;
       }
       if (file.size > MAX_FILE_SIZE) {
@@ -37,7 +48,7 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
         return;
       }
       setFileError(null);
-      setSelectedFile({ name: file.name, size: file.size });
+      setSelectedFile({ name: file.name, size: file.size, type });
       onFileSelect(file);
     },
     [onFileSelect]
@@ -82,7 +93,7 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
     <div
       role="button"
       tabIndex={0}
-      aria-label="Upload CSV file"
+      aria-label="Upload CSV or PDF file"
       aria-busy={isLoading}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -103,7 +114,10 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
             Processing your file...
           </p>
           {selectedFile && (
-            <p className="text-stone-400 text-sm">{selectedFile.name}</p>
+            <div className="flex items-center gap-2 text-stone-400 text-sm">
+              <FileTypeBadge type={selectedFile.type} />
+              <span>{selectedFile.name}</span>
+            </div>
           )}
         </div>
       ) : (
@@ -135,7 +149,7 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
             <p className="text-stone-700 dark:text-stone-300 text-lg font-medium">
               {isDragOver
                 ? 'Drop your file here'
-                : 'Drop your bank statement CSV'}
+                : 'Drop your bank statement (CSV or PDF)'}
             </p>
             <p className="text-stone-400 dark:text-stone-500 text-sm">or</p>
           </div>
@@ -151,7 +165,9 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
             Browse files
           </button>
 
-          <p className="text-stone-400 dark:text-stone-500 text-xs">Supports .csv files</p>
+          <p className="text-stone-400 dark:text-stone-500 text-xs">
+            Supports .csv and .pdf files
+          </p>
 
           {selectedFile && !fileError && (
             <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-4 py-2 rounded-lg">
@@ -168,6 +184,7 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
                   d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                 />
               </svg>
+              <FileTypeBadge type={selectedFile.type} />
               {selectedFile.name} ({formatFileSize(selectedFile.size)})
             </div>
           )}
@@ -197,11 +214,29 @@ export function FileUpload({ onFileSelect, isLoading }: FileUploadProps) {
       <input
         ref={inputRef}
         type="file"
-        accept=".csv"
+        accept=".csv,.pdf,application/pdf,text/csv"
         className="hidden"
         onChange={handleChange}
         disabled={isLoading}
       />
     </div>
+  );
+}
+
+function FileTypeBadge({ type }: { type: DetectedType }) {
+  if (!type) return null;
+
+  const label = type.toUpperCase();
+  const colorClass =
+    type === 'pdf'
+      ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+      : 'bg-teal-100 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400';
+
+  return (
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide ${colorClass}`}
+    >
+      {label}
+    </span>
   );
 }
