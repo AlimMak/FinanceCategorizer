@@ -119,16 +119,16 @@ export function SpendingTimeline({ data }: SpendingTimelineProps) {
       </h2>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.5} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--divider)" opacity={0.5} />
           <XAxis
             dataKey="period"
-            tick={{ fontSize: 12, fill: '#78716c' }}
+            tick={{ fontSize: 12, fill: 'var(--muted)' }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             tickFormatter={(v: number) => formatCurrency(v)}
-            tick={{ fontSize: 11, fill: '#78716c' }}
+            tick={{ fontSize: 11, fill: 'var(--muted)' }}
             axisLine={false}
             tickLine={false}
             width={80}

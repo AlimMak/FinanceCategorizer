@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* --- Class-based dark mode for Tailwind v4 --- */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* --- Light theme (warm stone palette) --- */
 :root {
   --background: #fafaf9;
@@ -32,21 +35,19 @@
   --cat-other: #9ca0a8;
 }
 
-/* --- Dark theme --- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0c0a09;
-    --foreground: #fafaf9;
-    --card: #1c1917;
-    --card-border: #292524;
-    --card-hover-border: #44403c;
-    --muted: #a8a29e;
-    --muted-light: #78716c;
-    --surface: #292524;
-    --divider: #292524;
-    --color-expense: #e08a7c;
-    --color-income: #6ab89a;
-  }
+/* --- Dark theme (class-based) --- */
+.dark {
+  --background: #0c0a09;
+  --foreground: #fafaf9;
+  --card: #1c1917;
+  --card-border: #292524;
+  --card-hover-border: #44403c;
+  --muted: #a8a29e;
+  --muted-light: #78716c;
+  --surface: #292524;
+  --divider: #292524;
+  --color-expense: #e08a7c;
+  --color-income: #6ab89a;
 }
 
 /* --- Tailwind theme wiring --- */
@@ -62,6 +63,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* --- Smooth transitions between steps --- */
@@ -85,7 +87,7 @@ main > * {
   background: var(--card);
   border: 1px solid var(--card-border);
   border-radius: 0.75rem;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .card:hover {
@@ -111,13 +113,12 @@ main > * {
   background: #a8a29e;
 }
 
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-thumb {
-    background: #44403c;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #57534e;
-  }
+.dark ::-webkit-scrollbar-thumb {
+  background: #44403c;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #57534e;
 }
 
 /* Firefox scrollbar */
@@ -126,8 +127,6 @@ main > * {
   scrollbar-color: #d6d3d1 transparent;
 }
 
-@media (prefers-color-scheme: dark) {
-  * {
-    scrollbar-color: #44403c transparent;
-  }
+.dark * {
+  scrollbar-color: #44403c transparent;
 }
