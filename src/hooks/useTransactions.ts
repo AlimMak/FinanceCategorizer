@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import type {
   CategorizedTransaction,
   Category,
@@ -10,43 +10,33 @@ import type {
 import { parseCSV, applyMapping, detectColumns } from '@/utils/csv-parser';
 import { categorizeTransactions } from '@/services/categorizer';
 
-type Step = 'upload' | 'mapping' | 'categorizing' | 'dashboard';
+type Step = 'upload' | 'processing' | 'dashboard';
 
 interface TransactionState {
   step: Step;
-  headers: string[];
-  columnMapping: Partial<ColumnMapping> | null;
   transactions: CategorizedTransaction[];
   isLoading: boolean;
   error: string | null;
-  pendingCount: number;
-  previewRows: string[][];
+  statusMessage: string;
 }
 
 export interface UseTransactionsResult {
   step: Step;
-  headers: string[];
-  columnMapping: Partial<ColumnMapping> | null;
   transactions: CategorizedTransaction[];
   isLoading: boolean;
   error: string | null;
-  pendingCount: number;
-  previewRows: string[][];
+  statusMessage: string;
   handleFileUpload: (file: File) => Promise<void>;
-  handleColumnConfirm: (mapping: ColumnMapping) => Promise<void>;
   handleCategoryOverride: (id: string, category: Category) => void;
   handleReset: () => void;
 }
 
 const INITIAL_STATE: TransactionState = {
   step: 'upload',
-  headers: [],
-  columnMapping: null,
   transactions: [],
   isLoading: false,
   error: null,
-  pendingCount: 0,
-  previewRows: [],
+  statusMessage: '',
 };
 
 const PDF_MAPPING: ColumnMapping = {
@@ -59,18 +49,27 @@ function isPdfFile(file: File): boolean {
   return file.name.toLowerCase().endsWith('.pdf');
 }
 
+function resolveMapping(
+  headers: string[]
+): ColumnMapping {
+  const detected = detectColumns(headers);
+
+  return {
+    dateColumn: detected.dateColumn ?? headers[0] ?? '',
+    descriptionColumn: detected.descriptionColumn ?? headers[1] ?? '',
+    amountColumn: detected.amountColumn ?? headers[2] ?? '',
+    categoryColumn: detected.categoryColumn,
+  };
+}
+
 export function useTransactions(): UseTransactionsResult {
   const [state, setState] = useState<TransactionState>(INITIAL_STATE);
-  const rawRowsRef = useRef<string[][]>([]);
-  const headersRef = useRef<string[]>([]);
 
   const runCategorization = useCallback(
     async (rawTransactions: RawTransaction[]) => {
       setState((prev) => ({
         ...prev,
-        step: 'categorizing',
-        error: null,
-        pendingCount: rawTransactions.length,
+        statusMessage: `Categorizing ${rawTransactions.length} transaction${rawTransactions.length !== 1 ? 's' : ''}...`,
       }));
 
       try {
@@ -90,6 +89,8 @@ export function useTransactions(): UseTransactionsResult {
           ...prev,
           step: 'dashboard',
           transactions,
+          isLoading: false,
+          statusMessage: '',
         }));
       } catch (err) {
         const warning =
@@ -108,6 +109,8 @@ export function useTransactions(): UseTransactionsResult {
           ...prev,
           step: 'dashboard',
           transactions: fallbackTransactions,
+          isLoading: false,
+          statusMessage: '',
           error: `AI categorization failed: ${warning}. All transactions marked as "Other".`,
         }));
       }
@@ -117,7 +120,13 @@ export function useTransactions(): UseTransactionsResult {
 
   const handleFileUpload = useCallback(
     async (file: File) => {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      setState((prev) => ({
+        ...prev,
+        step: 'processing',
+        isLoading: true,
+        error: null,
+        statusMessage: 'Parsing your file...',
+      }));
 
       if (isPdfFile(file)) {
         let rawTransactions: RawTransaction[];
@@ -130,17 +139,20 @@ export function useTransactions(): UseTransactionsResult {
           const raw = err instanceof Error ? err.message : 'Unknown error';
           setState((prev) => ({
             ...prev,
+            step: 'upload',
             isLoading: false,
+            statusMessage: '',
             error: `PDF parsing failed \u2014 ${raw}`,
           }));
           return;
         }
 
-        setState((prev) => ({ ...prev, isLoading: false }));
-
         if (rawTransactions.length === 0) {
           setState((prev) => ({
             ...prev,
+            step: 'upload',
+            isLoading: false,
+            statusMessage: '',
             error:
               'No valid transactions found in the PDF. Try using a CSV export from your bank instead.',
           }));
@@ -151,51 +163,33 @@ export function useTransactions(): UseTransactionsResult {
         return;
       }
 
+      // CSV flow — fully automatic
+      let rawTransactions: RawTransaction[];
+
       try {
         const { headers, rows } = await parseCSV(file);
-        const columnMapping = detectColumns(headers);
-        rawRowsRef.current = rows;
-        headersRef.current = headers;
-
-        setState((prev) => ({
-          ...prev,
-          step: 'mapping',
-          headers,
-          columnMapping,
-          isLoading: false,
-          previewRows: rows.slice(0, 5),
-        }));
+        const mapping = resolveMapping(headers);
+        rawTransactions = applyMapping(rows, headers, mapping);
       } catch (err) {
         const raw = err instanceof Error ? err.message : 'Unknown error';
-        const message = `CSV parsing failed \u2014 ${raw}. Check that your file has column headers in the first row.`;
-        setState((prev) => ({ ...prev, isLoading: false, error: message }));
-      }
-    },
-    [runCategorization]
-  );
-
-  const handleColumnConfirm = useCallback(
-    async (mapping: ColumnMapping) => {
-      const currentRows = rawRowsRef.current;
-      const currentHeaders = headersRef.current;
-
-      if (currentRows.length === 0 || currentHeaders.length === 0) {
         setState((prev) => ({
           ...prev,
           step: 'upload',
-          error: 'No data loaded. Please upload a file first.',
+          isLoading: false,
+          statusMessage: '',
+          error: `CSV parsing failed \u2014 ${raw}. Check that your file has column headers in the first row.`,
         }));
         return;
       }
 
-      const rawTransactions = applyMapping(currentRows, currentHeaders, mapping);
-
       if (rawTransactions.length === 0) {
         setState((prev) => ({
           ...prev,
-          step: 'mapping',
+          step: 'upload',
+          isLoading: false,
+          statusMessage: '',
           error:
-            'No valid transactions found. Check your column mapping \u2014 ensure the date, description, and amount columns are correct.',
+            'No valid transactions found. Check that your CSV has date, description, and amount columns.',
         }));
         return;
       }
@@ -218,22 +212,16 @@ export function useTransactions(): UseTransactionsResult {
   );
 
   const handleReset = useCallback(() => {
-    rawRowsRef.current = [];
-    headersRef.current = [];
     setState(INITIAL_STATE);
   }, []);
 
   return {
     step: state.step,
-    headers: state.headers,
-    columnMapping: state.columnMapping,
     transactions: state.transactions,
     isLoading: state.isLoading,
     error: state.error,
-    pendingCount: state.pendingCount,
-    previewRows: state.previewRows,
+    statusMessage: state.statusMessage,
     handleFileUpload,
-    handleColumnConfirm,
     handleCategoryOverride,
     handleReset,
   };

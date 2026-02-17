@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import { FileUpload } from '@/components/upload/FileUpload';
-import { ColumnMapper } from '@/components/upload/ColumnMapper';
 import { SpendingSummary } from '@/components/dashboard/SpendingSummary';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { SpendingTimeline } from '@/components/dashboard/SpendingTimeline';
@@ -18,15 +17,11 @@ import {
 export default function HomePage() {
   const {
     step,
-    headers,
-    columnMapping,
     transactions,
     isLoading,
     error,
-    pendingCount,
-    previewRows,
+    statusMessage,
     handleFileUpload,
-    handleColumnConfirm,
     handleCategoryOverride,
     handleReset,
   } = useTransactions();
@@ -70,7 +65,7 @@ export default function HomePage() {
             </h1>
           </div>
 
-          {step !== 'upload' && (
+          {step !== 'upload' && !isLoading && (
             <button
               onClick={handleReset}
               className="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors"
@@ -82,7 +77,7 @@ export default function HomePage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {error && (
+        {error && step !== 'processing' && (
           <div
             role="alert"
             className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm flex items-start gap-3"
@@ -112,41 +107,50 @@ export default function HomePage() {
                 Categorize your transactions
               </h2>
               <p className="text-stone-500 dark:text-stone-400 mt-2">
-                Upload a CSV from your bank and let AI sort your spending.
+                Upload a CSV or PDF bank statement and let AI sort your
+                spending.
               </p>
             </div>
             <FileUpload onFileSelect={handleFileUpload} isLoading={isLoading} />
           </div>
         )}
 
-        {step === 'mapping' && (
-          <ColumnMapper
-            headers={headers}
-            initialMapping={columnMapping ?? undefined}
-            previewRows={previewRows}
-            onMappingComplete={handleColumnConfirm}
-            onBack={handleReset}
-          />
-        )}
-
-        {step === 'categorizing' && (
+        {step === 'processing' && (
           <div
             role="status"
             aria-live="polite"
-            className="flex flex-col items-center justify-center py-20 space-y-5"
+            className="flex flex-col items-center justify-center py-24 space-y-8"
           >
-            <div className="relative">
-              <div className="w-14 h-14 border-[3px] border-teal-200 dark:border-teal-900 rounded-full" />
-              <div className="absolute inset-0 w-14 h-14 border-[3px] border-teal-600 border-t-transparent rounded-full animate-spin" />
+            <div className="relative w-16 h-16">
+              <div className="absolute inset-0 rounded-full border-[3px] border-stone-200 dark:border-stone-800" />
+              <div className="absolute inset-0 rounded-full border-[3px] border-teal-600 border-t-transparent animate-spin" />
+              <div className="absolute inset-2 rounded-full border-[2px] border-teal-400/30 border-b-transparent animate-spin [animation-direction:reverse] [animation-duration:1.5s]" />
             </div>
-            <div className="text-center space-y-1">
+
+            <div className="text-center space-y-2">
               <p className="text-stone-900 dark:text-stone-100 text-lg font-medium">
-                Categorizing {pendingCount} transaction
-                {pendingCount !== 1 ? 's' : ''}...
+                {statusMessage || 'Processing...'}
               </p>
-              <p className="text-stone-400 text-sm">
-                AI is analyzing your spending patterns
+              <p className="text-stone-400 dark:text-stone-500 text-sm">
+                This usually takes a few seconds
               </p>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs text-stone-400 dark:text-stone-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                Secure
+              </span>
+              <span className="w-px h-3 bg-stone-300 dark:bg-stone-700" />
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                AI-powered
+              </span>
+              <span className="w-px h-3 bg-stone-300 dark:bg-stone-700" />
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                Private
+              </span>
             </div>
           </div>
         )}
