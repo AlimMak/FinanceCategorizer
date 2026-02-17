@@ -48,7 +48,7 @@ Groceries | Dining | Transport | Entertainment | Subscriptions | Housing | Utili
 
 - **Framework**: Next.js 16 + TypeScript (App Router)
 - **Styling**: TailwindCSS v4
-- **AI**: Anthropic Claude API (claude-sonnet-4-5-20250929)
+- **AI**: Anthropic Claude API (claude-haiku-4-5-20251001)
 - **Charts**: Recharts
 - **CSV Parsing**: PapaParse
 - **Deployment**: Vercel

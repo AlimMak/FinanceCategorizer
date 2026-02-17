@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { SpendingSummary } from '@/components/dashboard/SpendingSummary';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
@@ -12,6 +12,7 @@ import {
   getCategoryBreakdown,
   getTimelineData,
   getTopMerchants,
+  getSummaryStats,
 } from '@/utils/data-transform';
 
 export default function HomePage() {
@@ -27,6 +28,7 @@ export default function HomePage() {
   } = useTransactions();
 
   const [showTable, setShowTable] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   const categoryBreakdown = useMemo(
     () => getCategoryBreakdown(transactions),
@@ -40,6 +42,27 @@ export default function HomePage() {
     () => getTopMerchants(transactions),
     [transactions]
   );
+  const summaryStats = useMemo(
+    () => getSummaryStats(transactions),
+    [transactions]
+  );
+
+  const handleExportPDF = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const { exportDashboardPDF } = await import('@/utils/pdf-export');
+      await exportDashboardPDF({
+        transactions,
+        stats: summaryStats,
+        categoryBreakdown,
+        topMerchants,
+      });
+    } catch {
+      // PDF generation failed silently — user sees no download
+    } finally {
+      setIsExporting(false);
+    }
+  }, [transactions, summaryStats, categoryBreakdown, topMerchants]);
 
   return (
     <div className="min-h-screen">
@@ -65,7 +88,49 @@ export default function HomePage() {
             </h1>
           </div>
 
-          {step !== 'upload' && !isLoading && (
+          {step === 'dashboard' && transactions.length > 0 && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="flex items-center gap-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 transition-colors disabled:opacity-50"
+              >
+                {isExporting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-[2px] border-teal-600 dark:border-teal-400 border-t-transparent rounded-full animate-spin" />
+                    Generating report...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      aria-hidden="true"
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                      />
+                    </svg>
+                    Export PDF
+                  </>
+                )}
+              </button>
+              <span className="w-px h-4 bg-stone-300 dark:bg-stone-700" />
+              <button
+                onClick={handleReset}
+                className="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors"
+              >
+                Start over
+              </button>
+            </div>
+          )}
+
+          {step !== 'upload' && step !== 'dashboard' && !isLoading && (
             <button
               onClick={handleReset}
               className="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors"
