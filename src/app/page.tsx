@@ -6,6 +6,7 @@ import { SpendingSummary } from '@/components/dashboard/SpendingSummary';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { SpendingTimeline } from '@/components/dashboard/SpendingTimeline';
 import { TopMerchants } from '@/components/dashboard/TopMerchants';
+import { SubscriptionTracker } from '@/components/dashboard/SubscriptionTracker';
 import { TransactionTable } from '@/components/transactions/TransactionTable';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useTheme } from '@/hooks/useTheme';
@@ -15,6 +16,7 @@ import {
   getTopMerchants,
   getSummaryStats,
 } from '@/utils/data-transform';
+import { detectSubscriptions } from '@/utils/subscription-detector';
 
 export default function HomePage() {
   const {
@@ -46,6 +48,10 @@ export default function HomePage() {
   );
   const summaryStats = useMemo(
     () => getSummaryStats(transactions),
+    [transactions]
+  );
+  const subscriptions = useMemo(
+    () => detectSubscriptions(transactions),
     [transactions]
   );
 
@@ -300,6 +306,8 @@ export default function HomePage() {
             </div>
 
             <TopMerchants data={topMerchants} />
+
+            <SubscriptionTracker subscriptions={subscriptions} />
 
             <div>
               <button

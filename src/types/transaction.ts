@@ -54,6 +54,21 @@ export interface ColumnMapping {
   categoryColumn?: string;
 }
 
+export type SubscriptionFrequency = 'weekly' | 'monthly' | 'yearly';
+
+export interface Subscription {
+  id: string;
+  merchant: string;
+  amount: number;
+  frequency: SubscriptionFrequency;
+  confidence: number;
+  lastCharge: string;
+  nextExpectedCharge: string;
+  totalSpent: number;
+  occurrences: number;
+  transactionIds: string[];
+}
+
 export const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
   Groceries: { name: 'Groceries', color: '#5ba888', icon: '\u{1F6D2}' },
   Dining: { name: 'Dining', color: '#d4956a', icon: '\u{1F37D}\u{FE0F}' },

@@ -126,6 +126,21 @@ export function getTopMerchants(
     .slice(0, limit);
 }
 
+export function getMonthlySubscriptionCost(
+  subscriptions: import('@/types/transaction').Subscription[]
+): number {
+  return subscriptions.reduce((total, sub) => {
+    switch (sub.frequency) {
+      case 'weekly':
+        return total + sub.amount * (52 / 12);
+      case 'monthly':
+        return total + sub.amount;
+      case 'yearly':
+        return total + sub.amount / 12;
+    }
+  }, 0);
+}
+
 export interface SummaryStats {
   totalSpent: number;
   totalIncome: number;
