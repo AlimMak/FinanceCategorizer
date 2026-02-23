@@ -8,6 +8,9 @@ interface PdfTextItem {
 
 const Y_TOLERANCE = 2;
 
+// Max lines from PDF to prevent memory exhaustion (safety limit)
+const MAX_PDF_LINES = 10000;
+
 const DATE_RE =
   /^(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\d{4}-\d{2}-\d{2}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2}(?:[,\s]+\d{4})?)\s/i;
 
@@ -218,8 +221,10 @@ export async function parsePDF(file: File): Promise<ParseResult> {
   const pdfjsLib = await import('pdfjs-dist');
 
   if (!workerConfigured) {
+    // Configure worker to use local bundled version instead of CDN
+    // This prevents supply chain attacks from external CDN
     pdfjsLib.GlobalWorkerOptions.workerSrc =
-      `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+      '/pdfjs-worker.min.mjs';
     workerConfigured = true;
   }
 
@@ -243,11 +248,18 @@ export async function parsePDF(file: File): Promise<ParseResult> {
     totalTextLength += textItems.reduce((sum, item) => sum + item.str.length, 0);
     const pageLines = extractLinesFromItems(textItems);
     allLines.push(...pageLines);
+
+    // Check line limit to prevent memory exhaustion
+    if (allLines.length > MAX_PDF_LINES) {
+      throw new Error(
+        'PDF is too large or complex to process. Please try a CSV export from your bank instead.'
+      );
+    }
   }
 
   if (totalTextLength < 20) {
     throw new Error(
-      'This PDF appears to be a scanned image. Please use a CSV export instead.'
+      'Unable to extract text from this PDF. Please ensure it is a text-based PDF (not a scanned image) and try a CSV export from your bank instead.'
     );
   }
 
@@ -255,7 +267,7 @@ export async function parsePDF(file: File): Promise<ParseResult> {
 
   if (transactions.length === 0) {
     throw new Error(
-      'No transactions found in this PDF. The format may not be supported. Please try a CSV export from your bank instead.'
+      'No transactions could be found in this PDF. The format may not be supported. Please try a CSV export from your bank instead.'
     );
   }
 

@@ -1,6 +1,9 @@
 import Papa from 'papaparse';
 import type { ColumnMapping, RawTransaction } from '@/types/transaction';
 
+// Max 5000 rows to prevent memory exhaustion
+const MAX_CSV_ROWS = 5000;
+
 export interface ParseResult {
   headers: string[];
   rows: string[][];
@@ -21,11 +24,22 @@ export function parseCSV(file: File): Promise<ParseResult> {
           reject(new Error('no column headers found in the first row'));
           return;
         }
-        const headers = headerRow.map((h) => h.replace(/^\uFEFF/, '').trim());
+
+        // Validate row count
+        if (rows.length > MAX_CSV_ROWS) {
+          reject(
+            new Error(
+              `too many rows (${rows.length}). maximum ${MAX_CSV_ROWS} rows allowed`
+            )
+          );
+          return;
+        }
+
         if (rows.length === 0) {
           reject(new Error('the file has headers but no data rows'));
           return;
         }
+        const headers = headerRow.map((h) => h.replace(/^\uFEFF/, '').trim());
         resolve({ headers, rows });
       },
       error: (error) => reject(new Error(error.message)),
